@@ -27,9 +27,6 @@ START   ORG         $1000       *Start program at $1000
 
 *-----------------------------------------------------------
 
-        LEA         PROMPT,A1   *Prompt user to ender hex data
-        MOVE.W      #14,D0
-        TRAP        #15
         
         
 *-----------------------------------------------------------
@@ -37,9 +34,12 @@ START   ORG         $1000       *Start program at $1000
 *   MESSAGES   
 
 *-----------------------------------------------------------
-INTRO   DC.B    'Disassembler',0  
+INTRO   DC.B    '------------------------------------------',CR,LF
+        DC.B    CR,LF,'           Program Disassembler',CR,LF,CR,LF
+        DC.B    '------------------------------------------',CR,LF,0
 
         END    START        ; last line of source
+
 
 *~Font name~Courier New~
 *~Font size~10~
