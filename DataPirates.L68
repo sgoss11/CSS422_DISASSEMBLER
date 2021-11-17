@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 11/16/2021 4:12:07 PM
+Created On: 11/16/2021 4:20:24 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : 
@@ -21,7 +21,7 @@ Created On: 11/16/2021 4:12:07 PM
 00001000                            17  
 00001000                            18  *-----------------------------------------------------------
 00001000                            19  
-00001000  43F9 0000100C             20          LEA         INTRO,A1    *Program starting message
+00001000  43F9 0000102A             20          LEA         INTRO,A1    *Program starting message
 00001006  103C 000E                 21          MOVE.B      #14,D0
 0000100A  4E4F                      22          TRAP        #15
 0000100C                            23          
@@ -30,19 +30,30 @@ Created On: 11/16/2021 4:12:07 PM
 0000100C                            26  *   INPUT   
 0000100C                            27  
 0000100C                            28  *-----------------------------------------------------------
-0000100C                            29  
-0000100C                            30          
-0000100C                            31          
-0000100C                            32  *-----------------------------------------------------------
-0000100C                            33  
-0000100C                            34  *   MESSAGES   
-0000100C                            35  
-0000100C                            36  *-----------------------------------------------------------
-0000100C= 2D 2D 2D 2D 2D 2D ...     37  INTRO   DC.B    '------------------------------------------',CR,LF
-00001038= 0D 0A 20 20 20 20 ...     38          DC.B    CR,LF,'           Program Disassembler',CR,LF,CR,LF
-0000105D= 2D 2D 2D 2D 2D 2D ...     39          DC.B    '------------------------------------------',CR,LF,0
-0000108A                            40  
-0000108A                            41          END    START        ; last line of source
+0000100C  43F9 000010A8             29          LEA         FILENAME,A1 *Load file
+00001012  303C 0033                 30          MOVE        #51,D0
+00001016  4E4F                      31          TRAP        #15
+00001018                            32          
+00001018  43F9 000010B5             33          LEA         BUFFER,A1
+0000101E  303C 0035                 34          MOVE        #53,D0
+00001022  4E4F                      35          TRAP        #15
+00001024                            36          
+00001024  243C 00001119             37          MOVE.L      #filesize,D2
+0000102A                            38          
+0000102A                            39  *-----------------------------------------------------------
+0000102A                            40  
+0000102A                            41  *   MESSAGES   
+0000102A                            42  
+0000102A                            43  *-----------------------------------------------------------
+0000102A= 2D 2D 2D 2D 2D 2D ...     44  INTRO   DC.B    '------------------------------------------',CR,LF
+00001056= 0D 0A 20 20 20 20 ...     45          DC.B    CR,LF,'           Program Disassembler',CR,LF,CR,LF
+0000107B= 2D 2D 2D 2D 2D 2D ...     46          DC.B    '------------------------------------------',CR,LF,0
+000010A8                            47          
+000010A8= 74 65 73 74 66 69 ...     48  FILENAME DC.B   'testfile.txt',0
+000010B5                            49  BUFFER   DS.B   100
+00001119                            50  FILESIZE DS.B   100
+0000117D                            51  
+0000117D                            52          END    START        ; last line of source
 
 No errors detected
 No warnings generated
@@ -51,8 +62,11 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
+BUFFER              10B5
 CR                  D
 DATA                0
-INTRO               100C
+FILENAME            10A8
+FILESIZE            1119
+INTRO               102A
 LF                  A
 START               1000

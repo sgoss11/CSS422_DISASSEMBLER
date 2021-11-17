@@ -26,13 +26,18 @@ START   ORG         $1000       *Start program at $1000
 *   INPUT   
 
 *-----------------------------------------------------------
-        LEA         FILENAME,A1 *Load file
+        LEA         FILENAME,A1 *Open file
         MOVE        #51,D0
         TRAP        #15
         
-        LEA         BUFFER,A1
+        LEA         BUFFER,A1   *Read file
         MOVE        #53,D0
         TRAP        #15
+        
+        MOVE.L      #filesize,D2
+        
+        MOVE.B      #56,D0       *Close file
+        TRAP         #15
         
 *-----------------------------------------------------------
 
@@ -43,8 +48,9 @@ INTRO   DC.B    '------------------------------------------',CR,LF
         DC.B    CR,LF,'           Program Disassembler',CR,LF,CR,LF
         DC.B    '------------------------------------------',CR,LF,0
         
-FILENAME DC.B   'file.txt',0
+FILENAME DC.B   'testfile.txt',0
 BUFFER   DS.B   100
+FILESIZE DS.B   100
 
         END    START        ; last line of source
 
