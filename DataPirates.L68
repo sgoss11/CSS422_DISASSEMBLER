@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 11/18/2021 4:14:15 PM
+Created On: 11/18/2021 4:37:38 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : CSS422_DISASSEMBLER
@@ -19,8 +19,8 @@ Created On: 11/18/2021 4:14:15 PM
 00001000                            15  *   Starting Prompt
 00001000                            16  
 00001000                            17  *-----------------------------------------------------------
-00001000                            18  
-00001000  43F9 00001064             19              LEA         INTRO,A1      ;Program starting message
+00001000                            18  INTRODUCTION
+00001000  43F9 00001084             19              LEA         INTRO,A1      ;Program starting message
 00001006  103C 000E                 20              MOVE.B      #14,D0
 0000100A  4E4F                      21              TRAP        #15
 0000100C                            22          
@@ -30,21 +30,21 @@ Created On: 11/18/2021 4:14:15 PM
 0000100C                            26  
 0000100C                            27  *-----------------------------------------------------------
 0000100C                            28  
-0000100C  43F9 000010E2             29              LEA         PROMPT,A1   *Prompt user to ender hex data
+0000100C  43F9 00001102             29              LEA         PROMPT,A1   *Prompt user to ender hex data
 00001012  303C 000E                 30              MOVE.W      #14,D0
 00001016  4E4F                      31              TRAP        #15
 00001018  7002                      32              MOVE.L      #2,D0       *User Input as string (ASCII)
 0000101A  4E4F                      33              TRAP        #15
-0000101C  23C9 00001106             34              MOVE.L      A1,FILENAME  *'testfile.txt',0
+0000101C  23C9 00001126             34              MOVE.L      A1,FILENAME  *'testfile.txt',0
 00001022  4240                      35              CLR         D0
 00001024                            36              
-00001024  43F9 00001106             37              LEA         FILENAME,A1   ; Open file
+00001024  43F9 00001126             37              LEA         FILENAME,A1   ; Open file
 0000102A  303C 0033                 38              MOVE        #51,D0
 0000102E  4E4F                      39              TRAP        #15
-00001030  33C1 000011EC             40              MOVE        D1,DATA
+00001030  33C1 0000120C             40              MOVE        D1,DATA
 00001036                            41          
-00001036  243C 00001188             42              MOVE.L      #FILESIZE,D2
-0000103C  43F9 00001124             43              LEA         BUFFER,A1
+00001036  243C 000011A8             42              MOVE.L      #FILESIZE,D2
+0000103C  43F9 00001144             43              LEA         BUFFER,A1
 00001042  303C 0035                 44              MOVE        #53,D0        ; Trap task #53, read from file
 00001046  4E4F                      45              TRAP        #15      
 00001048                            46          
@@ -59,34 +59,63 @@ Created On: 11/18/2021 4:14:15 PM
 0000105A                            55          
 0000105A  303C 0038                 56  CLOSE       MOVE        #56,D0        ; Close file
 0000105E  4E4F                      57              TRAP        #15
-00001060                            58          
-00001060  FFFF FFFF                 59  DONE        SIMHALT                   ; Halt simulator
-00001064                            60  
-00001064                            61  *-----------------------------------------------------------
-00001064                            62  
-00001064                            63  *   MESSAGES   
-00001064                            64  
-00001064                            65  *-----------------------------------------------------------
-00001064= 2D 2D 2D 2D 2D 2D ...     66  INTRO       DC.B        '------------------------------------------',CR,LF
-00001090= 0D 0A 20 20 20 20 ...     67              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
-000010B5= 2D 2D 2D 2D 2D 2D ...     68              DC.B        '------------------------------------------',CR,LF,0
-000010E2= 50 6C 65 61 73 65 ...     69  PROMPT      DC.B        'Please enter a file of type .txt : ',0
-00001106                            70  
-00001106                            71  FILENAME    DS.B        30           *'testfile.txt',0
-00001124                            72  BUFFER      DS.B        100
-00001188                            73  FILESIZE    DS.B        100
-000011EC                            74  
-000011EC                            75  *-----------------------------------------------------------
-000011EC                            76  
-000011EC                            77  *   VARIABLES
-000011EC                            78  
-000011EC                            79  *-----------------------------------------------------------
-000011EC                            80  
-000011EC  =0000000D                 81  CR          EQU         $0D
-000011EC  =0000000A                 82  LF          EQU         $0A
-000011EC                            83  DATA        DS.L        1              ;Variable storage
-000011F0                            84  
-000011F0                            85              END         START          ; last line of source
+00001060                            58  
+00001060                            59  
+00001060                            60  * i think we are not allowed to use trap task higher than 15, c        
+00001060                            61  *-------------------------------------------------------------
+00001060                            62  *   Conversion to HEX 
+00001060                            63  *   ASCII VALUE - (30 - 39) is number ranging from (0- 9)
+00001060                            64  *   ASCII VALUE - (40)
+00001060                            65  *--------------------------------------------------------------
+00001060                            66  
+00001060                            67  CONVERT_TO_HEX
+00001060  4EB9 00001074             68              JSR         CLEAR_REG   *clears the data registers before starting
+00001066  1419                      69              MOVE.B      (A1)+, D2   * post increment address reg and move each byte to D2
+00001068  0C02 0030                 70              CMPI.B      #$30, D2    * if equal to 30 and greater its valid 
+0000106C  6D00 0012                 71              BLT         INVALID_HEX * if less than 30, that is error in hex number, branches if less than
+00001070  0C02 0039                 72              CMPI.B      #$39, D2    * greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
+00001074                            73                             
+00001074                            74  CLEAR_REG
+00001074  4242                      75              CLR D2      *clears all data registers 
+00001076  4243                      76              CLR D3
+00001078  4244                      77              CLR D4
+0000107A  4246                      78              CLR D6
+0000107C  4247                      79              CLR D7
+0000107E  4E75                      80              RTS
+00001080                            81              
+00001080                            82  INVALID_HEX 
+00001080                            83              *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASKK USER TO ENTER NEW VALUE 
+00001080                            84            
+00001080  FFFF FFFF                 85  DONE        SIMHALT                   ; Halt simulator
+00001084                            86  
+00001084                            87  *-----------------------------------------------------------
+00001084                            88  
+00001084                            89  *   MESSAGES   
+00001084                            90  
+00001084                            91  *-----------------------------------------------------------
+00001084= 2D 2D 2D 2D 2D 2D ...     92  INTRO       DC.B        '------------------------------------------',CR,LF
+000010B0= 0D 0A 20 20 20 20 ...     93              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
+000010D5= 2D 2D 2D 2D 2D 2D ...     94              DC.B        '------------------------------------------',CR,LF,0
+00001102= 50 6C 65 61 73 65 ...     95  PROMPT      DC.B        'Please enter a file of type .txt : ',0
+00001126                            96  
+00001126                            97  FILENAME    DS.B        30           *'testfile.txt',0
+00001144                            98  BUFFER      DS.B        100
+000011A8                            99  FILESIZE    DS.B        100
+0000120C                           100  *   FTYPE       DC.L        #$2E747874      *.txt in hex [ Idea to check 
+0000120C                           101                                              * file type, .txt, may not be 
+0000120C                           102                                              * implemented in final though ] 
+0000120C                           103  
+0000120C                           104  *-----------------------------------------------------------
+0000120C                           105  
+0000120C                           106  *   VARIABLES
+0000120C                           107  
+0000120C                           108  *-----------------------------------------------------------
+0000120C                           109  
+0000120C  =0000000D                110  CR          EQU         $0D
+0000120C  =0000000A                111  LF          EQU         $0A
+0000120C                           112  DATA        DS.L        1              ;Variable storage
+00001210                           113  
+00001210                           114              END         START          ; last line of source
 
 No errors detected
 No warnings generated
@@ -95,15 +124,19 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-BUFFER              1124
+BUFFER              1144
+CLEAR_REG           1074
 CLOSE               105A
+CONVERT_TO_HEX      1060
 CR                  D
-DATA                11EC
-DONE                1060
-FILENAME            1106
-FILESIZE            1188
-INTRO               1064
+DATA                120C
+DONE                1080
+FILENAME            1126
+FILESIZE            11A8
+INTRO               1084
+INTRODUCTION        1000
+INVALID_HEX         1080
 LF                  A
-PROMPT              10E2
+PROMPT              1102
 READ                104C
 START               1000

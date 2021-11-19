@@ -15,7 +15,7 @@ START   ORG             $1000         ;Start program at $1000
 *   Starting Prompt
 
 *-----------------------------------------------------------
-
+INTRODUCTION
             LEA         INTRO,A1      ;Program starting message
             MOVE.B      #14,D0
             TRAP        #15
@@ -55,7 +55,33 @@ READ        TST.B       D3            ; Checks when counter is 0
         
 CLOSE       MOVE        #56,D0        ; Close file
             TRAP        #15
-        
+
+
+* i think we are not allowed to use trap task higher than 15, c        
+*-------------------------------------------------------------
+*   Conversion to HEX 
+*   ASCII VALUE - (30 - 39) is number ranging from (0- 9)
+*   ASCII VALUE - (40)
+*--------------------------------------------------------------
+
+CONVERT_TO_HEX
+            JSR         CLEAR_REG   *clears the data registers before starting
+            MOVE.B      (A1)+, D2   * post increment address reg and move each byte to D2
+            CMPI.B      #$30, D2    * if equal to 30 and greater its valid 
+            BLT         INVALID_HEX * if less than 30, that is error in hex number, branches if less than
+            CMPI.B      #$39, D2    * greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
+                           
+CLEAR_REG
+            CLR D2      *clears all data registers 
+            CLR D3
+            CLR D4
+            CLR D6
+            CLR D7
+            RTS
+            
+INVALID_HEX 
+            *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASKK USER TO ENTER NEW VALUE 
+          
 DONE        SIMHALT                   ; Halt simulator
 
 *-----------------------------------------------------------
@@ -71,6 +97,9 @@ PROMPT      DC.B        'Please enter a file of type .txt : ',0
 FILENAME    DS.B        30           *'testfile.txt',0
 BUFFER      DS.B        100
 FILESIZE    DS.B        100
+*   FTYPE       DC.L        #$2E747874      *.txt in hex [ Idea to check 
+                                            * file type, .txt, may not be 
+                                            * implemented in final though ] 
 
 *-----------------------------------------------------------
 
@@ -84,6 +113,11 @@ DATA        DS.L        1              ;Variable storage
 
             END         START          ; last line of source
 
+
+*~Font name~Courier New~
+*~Font size~10~
+*~Tab type~1~
+*~Tab size~4~
 
 
 *~Font name~Courier New~
