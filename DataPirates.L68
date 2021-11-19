@@ -1,59 +1,92 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 11/16/2021 4:20:24 PM
+Created On: 11/18/2021 4:14:15 PM
 
 00000000                             1  *-----------------------------------------------------------
-00000000                             2  * Title      : 
-00000000                             3  * Written by : 
-00000000                             4  * Date       : 
-00000000                             5  * Description: 
-00000000                             6  *-----------------------------------------------------------
-00000000                             7  
-00000000  =0000000D                  8  CR      EQU         $0D
-00000000  =0000000A                  9  LF      EQU         $0A
-00000000                            10  DATA    DS.L        1           *Variable storage
-00000004                            11  
-00000004                            12  
-00001000                            13  START   ORG         $1000       *Start program at $1000
-00001000                            14  *-----------------------------------------------------------
-00001000                            15  
-00001000                            16  *   Starting Prompt
-00001000                            17  
-00001000                            18  *-----------------------------------------------------------
-00001000                            19  
-00001000  43F9 0000102A             20          LEA         INTRO,A1    *Program starting message
-00001006  103C 000E                 21          MOVE.B      #14,D0
-0000100A  4E4F                      22          TRAP        #15
-0000100C                            23          
-0000100C                            24  *-----------------------------------------------------------
-0000100C                            25  
-0000100C                            26  *   INPUT   
-0000100C                            27  
-0000100C                            28  *-----------------------------------------------------------
-0000100C  43F9 000010A8             29          LEA         FILENAME,A1 *Load file
-00001012  303C 0033                 30          MOVE        #51,D0
-00001016  4E4F                      31          TRAP        #15
-00001018                            32          
-00001018  43F9 000010B5             33          LEA         BUFFER,A1
-0000101E  303C 0035                 34          MOVE        #53,D0
-00001022  4E4F                      35          TRAP        #15
-00001024                            36          
-00001024  243C 00001119             37          MOVE.L      #filesize,D2
-0000102A                            38          
-0000102A                            39  *-----------------------------------------------------------
-0000102A                            40  
-0000102A                            41  *   MESSAGES   
-0000102A                            42  
-0000102A                            43  *-----------------------------------------------------------
-0000102A= 2D 2D 2D 2D 2D 2D ...     44  INTRO   DC.B    '------------------------------------------',CR,LF
-00001056= 0D 0A 20 20 20 20 ...     45          DC.B    CR,LF,'           Program Disassembler',CR,LF,CR,LF
-0000107B= 2D 2D 2D 2D 2D 2D ...     46          DC.B    '------------------------------------------',CR,LF,0
-000010A8                            47          
-000010A8= 74 65 73 74 66 69 ...     48  FILENAME DC.B   'testfile.txt',0
-000010B5                            49  BUFFER   DS.B   100
-00001119                            50  FILESIZE DS.B   100
-0000117D                            51  
-0000117D                            52          END    START        ; last line of source
+00000000                             2  * Title      : CSS422_DISASSEMBLER
+00000000                             3  * Written by : Data Pirates
+00000000                             4  * Date       : Autumn 2021
+00000000                             5  * Description: Scans a section of memory and attempts to
+00000000                             6  *              convert the memory’s contents to a listing 
+00000000                             7  *              of valid assembly language instructions
+00000000                             8  *-----------------------------------------------------------
+00000000                             9  
+00000000                            10  
+00001000                            11  START   ORG             $1000         ;Start program at $1000
+00001000                            12  
+00001000                            13  *-----------------------------------------------------------
+00001000                            14  
+00001000                            15  *   Starting Prompt
+00001000                            16  
+00001000                            17  *-----------------------------------------------------------
+00001000                            18  
+00001000  43F9 00001064             19              LEA         INTRO,A1      ;Program starting message
+00001006  103C 000E                 20              MOVE.B      #14,D0
+0000100A  4E4F                      21              TRAP        #15
+0000100C                            22          
+0000100C                            23  *-----------------------------------------------------------
+0000100C                            24  
+0000100C                            25  *   INPUT   
+0000100C                            26  
+0000100C                            27  *-----------------------------------------------------------
+0000100C                            28  
+0000100C  43F9 000010E2             29              LEA         PROMPT,A1   *Prompt user to ender hex data
+00001012  303C 000E                 30              MOVE.W      #14,D0
+00001016  4E4F                      31              TRAP        #15
+00001018  7002                      32              MOVE.L      #2,D0       *User Input as string (ASCII)
+0000101A  4E4F                      33              TRAP        #15
+0000101C  23C9 00001106             34              MOVE.L      A1,FILENAME  *'testfile.txt',0
+00001022  4240                      35              CLR         D0
+00001024                            36              
+00001024  43F9 00001106             37              LEA         FILENAME,A1   ; Open file
+0000102A  303C 0033                 38              MOVE        #51,D0
+0000102E  4E4F                      39              TRAP        #15
+00001030  33C1 000011EC             40              MOVE        D1,DATA
+00001036                            41          
+00001036  243C 00001188             42              MOVE.L      #FILESIZE,D2
+0000103C  43F9 00001124             43              LEA         BUFFER,A1
+00001042  303C 0035                 44              MOVE        #53,D0        ; Trap task #53, read from file
+00001046  4E4F                      45              TRAP        #15      
+00001048                            46          
+00001048  363C 0005                 47              MOVE        #5,D3         ; Counter
+0000104C                            48          
+0000104C  4A03                      49  READ        TST.B       D3            ; Checks when counter is 0
+0000104E  6700 000A                 50              BEQ         CLOSE
+00001052  0419 0030                 51              SUB.B       #$30,(A1)+
+00001056  5303                      52              SUB.B       #1,D3
+00001058  60F2                      53              BRA         READ
+0000105A                            54          
+0000105A                            55          
+0000105A  303C 0038                 56  CLOSE       MOVE        #56,D0        ; Close file
+0000105E  4E4F                      57              TRAP        #15
+00001060                            58          
+00001060  FFFF FFFF                 59  DONE        SIMHALT                   ; Halt simulator
+00001064                            60  
+00001064                            61  *-----------------------------------------------------------
+00001064                            62  
+00001064                            63  *   MESSAGES   
+00001064                            64  
+00001064                            65  *-----------------------------------------------------------
+00001064= 2D 2D 2D 2D 2D 2D ...     66  INTRO       DC.B        '------------------------------------------',CR,LF
+00001090= 0D 0A 20 20 20 20 ...     67              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
+000010B5= 2D 2D 2D 2D 2D 2D ...     68              DC.B        '------------------------------------------',CR,LF,0
+000010E2= 50 6C 65 61 73 65 ...     69  PROMPT      DC.B        'Please enter a file of type .txt : ',0
+00001106                            70  
+00001106                            71  FILENAME    DS.B        30           *'testfile.txt',0
+00001124                            72  BUFFER      DS.B        100
+00001188                            73  FILESIZE    DS.B        100
+000011EC                            74  
+000011EC                            75  *-----------------------------------------------------------
+000011EC                            76  
+000011EC                            77  *   VARIABLES
+000011EC                            78  
+000011EC                            79  *-----------------------------------------------------------
+000011EC                            80  
+000011EC  =0000000D                 81  CR          EQU         $0D
+000011EC  =0000000A                 82  LF          EQU         $0A
+000011EC                            83  DATA        DS.L        1              ;Variable storage
+000011F0                            84  
+000011F0                            85              END         START          ; last line of source
 
 No errors detected
 No warnings generated
@@ -62,11 +95,15 @@ No warnings generated
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-BUFFER              10B5
+BUFFER              1124
+CLOSE               105A
 CR                  D
-DATA                0
-FILENAME            10A8
-FILESIZE            1119
-INTRO               102A
+DATA                11EC
+DONE                1060
+FILENAME            1106
+FILESIZE            1188
+INTRO               1064
 LF                  A
+PROMPT              10E2
+READ                104C
 START               1000

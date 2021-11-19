@@ -25,6 +25,15 @@ START   ORG             $1000         ;Start program at $1000
 *   INPUT   
 
 *-----------------------------------------------------------
+
+            LEA         PROMPT,A1   *Prompt user to ender hex data
+            MOVE.W      #14,D0
+            TRAP        #15
+            MOVE.L      #2,D0       *User Input as string (ASCII)
+            TRAP        #15
+            MOVE.L      A1,FILENAME  *'testfile.txt',0
+            CLR         D0
+            
             LEA         FILENAME,A1   ; Open file
             MOVE        #51,D0
             TRAP        #15
@@ -57,8 +66,9 @@ DONE        SIMHALT                   ; Halt simulator
 INTRO       DC.B        '------------------------------------------',CR,LF
             DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
             DC.B        '------------------------------------------',CR,LF,0
+PROMPT      DC.B        'Please enter a file of type .txt : ',0
 
-FILENAME    DC.B        'testfile.txt',0
+FILENAME    DS.B        30           *'testfile.txt',0
 BUFFER      DS.B        100
 FILESIZE    DS.B        100
 
@@ -73,6 +83,7 @@ LF          EQU         $0A
 DATA        DS.L        1              ;Variable storage
 
             END         START          ; last line of source
+
 
 
 *~Font name~Courier New~
