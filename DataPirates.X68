@@ -8,7 +8,7 @@
 *-----------------------------------------------------------
 
 
-START   ORG             $1000         ;Start program at $1000
+START   ORG             $1000           ;Start program at $1000
 
 *-----------------------------------------------------------
 
@@ -16,7 +16,7 @@ START   ORG             $1000         ;Start program at $1000
 
 *-----------------------------------------------------------
 INTRODUCTION
-            LEA         INTRO,A1      ;Program starting message
+            LEA         INTRO,A1        ; Program starting message
             MOVE.B      #14,D0
             TRAP        #15
         
@@ -25,54 +25,39 @@ INTRODUCTION
 *   INPUT   
 
 *-----------------------------------------------------------
-
-            LEA         PROMPT,A1   *Prompt user to ender hex data
-            MOVE.W      #14,D0
-            TRAP        #15
-            MOVE.L      #2,D0       *User Input as string (ASCII)
-            TRAP        #15
-            MOVE.L      A1,FILENAME  *'testfile.txt',0
-            CLR         D0
             
-            LEA         FILENAME,A1   ; Open file
-            MOVE        #51,D0
+            NOP                         ; To prevent instruction overlap
+            LEA         INPUT1,A1       ; Prompt user to enter first boundary
+            MOVE        #14,D0
             TRAP        #15
-            MOVE        D1,DATA
-        
-            MOVE.L      #FILESIZE,D2
-            LEA         BUFFER,A1
-            MOVE        #53,D0        ; Trap task #53, read from file
-            TRAP        #15      
-        
-            MOVE        #5,D3         ; Counter
-        
-READ        TST.B       D3            ; Checks when counter is 0
-            BEQ         CLOSE
-            SUB.B       #$30,(A1)+
-            SUB.B       #1,D3
-            BRA         READ
-        
-        
-CLOSE       MOVE        #56,D0        ; Close file
+            MOVE.L      #2,D0       
             TRAP        #15
+            
+            JSR         CONVERT_TO_HEX  ; Get first address
+            MOVE.B      #14,D0
+            TRAP        #15
+            MOVE.W      D1,BOUND1       ; Move address to start of memory
 
-
-* i think we are not allowed to use trap task higher than 15, c        
-*-------------------------------------------------------------
-*   Conversion to HEX 
-*   ASCII VALUE - (30 - 39) is number ranging from (0- 9)
-*   ASCII VALUE - (40)
-*--------------------------------------------------------------
-
+            LEA         INPUT2,A1       ; Prompt user to enter second boundary
+            MOVE        #14,D0
+            TRAP        #15
+            MOVE.L      #2,D0       
+            TRAP        #15
+            
+            JSR         CONVERT_TO_HEX  ; Get second address
+            MOVE.B      #14,D0
+            TRAP        #15
+            MOVE.W      D1,BOUND2       ; move address to end of memory
+            
 CONVERT_TO_HEX
-            JSR         CLEAR_REG   *clears the data registers before starting
-            MOVE.B      (A1)+, D2   * post increment address reg and move each byte to D2
-            CMPI.B      #$30, D2    * if equal to 30 and greater its valid 
-            BLT         INVALID_HEX * if less than 30, that is error in hex number, branches if less than
-            CMPI.B      #$39, D2    * greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
+            JSR         CLEAR_REG       ; clears the data registers before starting
+            MOVE.B      (A1)+, D2       ; post increment address reg and move each byte to D2
+            CMPI.B      #$30, D2        ; if equal to 30 and greater its valid 
+            BLT         INVALID_HEX     ; if less than 30, that is error in hex number, branches if less than
+            CMPI.B      #$39, D2        ; greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
                            
 CLEAR_REG
-            CLR D2      *clears all data registers 
+            CLR D2                      ; clears all data registers 
             CLR D3
             CLR D4
             CLR D6
@@ -80,9 +65,9 @@ CLEAR_REG
             RTS
             
 INVALID_HEX 
-            *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASKK USER TO ENTER NEW VALUE 
-          
-DONE        SIMHALT                   ; Halt simulator
+            *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASK USER TO ENTER NEW VALUE
+
+DONE        SIMHALT                     ; Halt simulator
 
 *-----------------------------------------------------------
 
@@ -92,14 +77,9 @@ DONE        SIMHALT                   ; Halt simulator
 INTRO       DC.B        '------------------------------------------',CR,LF
             DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
             DC.B        '------------------------------------------',CR,LF,0
-PROMPT      DC.B        'Please enter a file of type .txt : ',0
-
-FILENAME    DS.B        30           *'testfile.txt',0
-BUFFER      DS.B        100
-FILESIZE    DS.B        100
-*   FTYPE       DC.L        #$2E747874      *.txt in hex [ Idea to check 
-                                            * file type, .txt, may not be 
-                                            * implemented in final though ] 
+            
+INPUT1      DC.B        'Please enter start boundary: ',0
+INPUT2      DC.B        'Please enter end boundary: ',0
 
 *-----------------------------------------------------------
 
@@ -109,9 +89,11 @@ FILESIZE    DS.B        100
 
 CR          EQU         $0D
 LF          EQU         $0A
-DATA        DS.L        1              ;Variable storage
 
-            END         START          ; last line of source
+BOUND1      DC.W        $0000           ; Start of memory address
+BOUND2      DC.W        $0000           ; End of memory address
+
+            END         START           ; last line of source
 
 
 *~Font name~Courier New~
