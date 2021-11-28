@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 11/18/2021 4:37:38 PM
+Created On: 11/28/2021 12:54:09 PM
 
 00000000                             1  *-----------------------------------------------------------
 00000000                             2  * Title      : CSS422_DISASSEMBLER
@@ -12,131 +12,367 @@ Created On: 11/18/2021 4:37:38 PM
 00000000                             8  *-----------------------------------------------------------
 00000000                             9  
 00000000                            10  
-00001000                            11  START   ORG             $1000         ;Start program at $1000
-00001000                            12  
-00001000                            13  *-----------------------------------------------------------
-00001000                            14  
 00001000                            15  *   Starting Prompt
+00001000                            11  START   ORG             $1000           ;Start program at $1000
+00001000                            12  demo_test  INCLUDE    "demo_test.X68"
+00001000                            13  
+Line 14 ERROR: Symbol defined more than once
+00001000                            14  start       EQU $00009000   * ORG and END address
+00001000                            15  
 00001000                            16  
-00001000                            17  *-----------------------------------------------------------
-00001000                            18  INTRODUCTION
-00001000  43F9 00001084             19              LEA         INTRO,A1      ;Program starting message
-00001006  103C 000E                 20              MOVE.B      #14,D0
-0000100A  4E4F                      21              TRAP        #15
-0000100C                            22          
-0000100C                            23  *-----------------------------------------------------------
-0000100C                            24  
-0000100C                            25  *   INPUT   
-0000100C                            26  
-0000100C                            27  *-----------------------------------------------------------
-0000100C                            28  
-0000100C  43F9 00001102             29              LEA         PROMPT,A1   *Prompt user to ender hex data
-00001012  303C 000E                 30              MOVE.W      #14,D0
-00001016  4E4F                      31              TRAP        #15
-00001018  7002                      32              MOVE.L      #2,D0       *User Input as string (ASCII)
-0000101A  4E4F                      33              TRAP        #15
-0000101C  23C9 00001126             34              MOVE.L      A1,FILENAME  *'testfile.txt',0
-00001022  4240                      35              CLR         D0
-00001024                            36              
-00001024  43F9 00001126             37              LEA         FILENAME,A1   ; Open file
-0000102A  303C 0033                 38              MOVE        #51,D0
-0000102E  4E4F                      39              TRAP        #15
-00001030  33C1 0000120C             40              MOVE        D1,DATA
-00001036                            41          
-00001036  243C 000011A8             42              MOVE.L      #FILESIZE,D2
-0000103C  43F9 00001144             43              LEA         BUFFER,A1
-00001042  303C 0035                 44              MOVE        #53,D0        ; Trap task #53, read from file
-00001046  4E4F                      45              TRAP        #15      
-00001048                            46          
-00001048  363C 0005                 47              MOVE        #5,D3         ; Counter
-0000104C                            48          
-0000104C  4A03                      49  READ        TST.B       D3            ; Checks when counter is 0
-0000104E  6700 000A                 50              BEQ         CLOSE
-00001052  0419 0030                 51              SUB.B       #$30,(A1)+
-00001056  5303                      52              SUB.B       #1,D3
-00001058  60F2                      53              BRA         READ
-0000105A                            54          
-0000105A                            55          
-0000105A  303C 0038                 56  CLOSE       MOVE        #56,D0        ; Close file
-0000105E  4E4F                      57              TRAP        #15
-00001060                            58  
-00001060                            59  
-00001060                            60  * i think we are not allowed to use trap task higher than 15, c        
-00001060                            61  *-------------------------------------------------------------
-00001060                            62  *   Conversion to HEX 
-00001060                            63  *   ASCII VALUE - (30 - 39) is number ranging from (0- 9)
-00001060                            64  *   ASCII VALUE - (40)
-00001060                            65  *--------------------------------------------------------------
-00001060                            66  
-00001060                            67  CONVERT_TO_HEX
-00001060  4EB9 00001074             68              JSR         CLEAR_REG   *clears the data registers before starting
-00001066  1419                      69              MOVE.B      (A1)+, D2   * post increment address reg and move each byte to D2
-00001068  0C02 0030                 70              CMPI.B      #$30, D2    * if equal to 30 and greater its valid 
-0000106C  6D00 0012                 71              BLT         INVALID_HEX * if less than 30, that is error in hex number, branches if less than
-00001070  0C02 0039                 72              CMPI.B      #$39, D2    * greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
-00001074                            73                             
-00001074                            74  CLEAR_REG
-00001074  4242                      75              CLR D2      *clears all data registers 
-00001076  4243                      76              CLR D3
-00001078  4244                      77              CLR D4
-0000107A  4246                      78              CLR D6
-0000107C  4247                      79              CLR D7
-0000107E  4E75                      80              RTS
-00001080                            81              
-00001080                            82  INVALID_HEX 
-00001080                            83              *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASKK USER TO ENTER NEW VALUE 
-00001080                            84            
-00001080  FFFF FFFF                 85  DONE        SIMHALT                   ; Halt simulator
-00001084                            86  
-00001084                            87  *-----------------------------------------------------------
-00001084                            88  
-00001084                            89  *   MESSAGES   
-00001084                            90  
-00001084                            91  *-----------------------------------------------------------
-00001084= 2D 2D 2D 2D 2D 2D ...     92  INTRO       DC.B        '------------------------------------------',CR,LF
-000010B0= 0D 0A 20 20 20 20 ...     93              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
-000010D5= 2D 2D 2D 2D 2D 2D ...     94              DC.B        '------------------------------------------',CR,LF,0
-00001102= 50 6C 65 61 73 65 ...     95  PROMPT      DC.B        'Please enter a file of type .txt : ',0
-00001126                            96  
-00001126                            97  FILENAME    DS.B        30           *'testfile.txt',0
-00001144                            98  BUFFER      DS.B        100
-000011A8                            99  FILESIZE    DS.B        100
-0000120C                           100  *   FTYPE       DC.L        #$2E747874      *.txt in hex [ Idea to check 
-0000120C                           101                                              * file type, .txt, may not be 
-0000120C                           102                                              * implemented in final though ] 
-0000120C                           103  
-0000120C                           104  *-----------------------------------------------------------
-0000120C                           105  
-0000120C                           106  *   VARIABLES
-0000120C                           107  
-0000120C                           108  *-----------------------------------------------------------
-0000120C                           109  
-0000120C  =0000000D                110  CR          EQU         $0D
-0000120C  =0000000A                111  LF          EQU         $0A
-0000120C                           112  DATA        DS.L        1              ;Variable storage
-00001210                           113  
-00001210                           114              END         START          ; last line of source
+00001000                            17          ORG start
+00001000                            18  
+00001000                            19  NOP
+00001000  4E75                      20      RTS
+00001002  4E71                      21      NOP
+00001004  4E75                      22      RTS
+00001006  41D0                      23      LEA     (A0),A0
+00001008  41D5                      24      LEA     (A5),A0
+0000100A  41D7                      25      LEA     (A7),A0
+0000100C  4FD0                      26      LEA     (A0),A7
+0000100E  4FD5                      27      LEA     (A5),A7
+00001010  4FD7                      28      LEA     (A7),A7
+00001012  1200                      29      MOVE.B    D0,D1
+00001014  1080                      30      MOVE.B    D0,(A0)
+00001016  10C0                      31      MOVE.B    D0,(A0)+
+00001018  1100                      32      MOVE.B    D0,-(A0)
+0000101A  1010                      33      MOVE.B    (A0),D0
+0000101C  1290                      34      MOVE.B    (A0),(A1)
+0000101E  12D0                      35      MOVE.B    (A0),(A1)+
+00001020  1310                      36      MOVE.B    (A0),-(A1)
+00001022  1018                      37      MOVE.B    (A0)+,D0
+00001024  1298                      38      MOVE.B    (A0)+,(A1)
+00001026  12D8                      39      MOVE.B    (A0)+,(A1)+
+00001028  1318                      40      MOVE.B    (A0)+,-(A1)
+0000102A  1020                      41      MOVE.B    -(A0),D0
+0000102C  12A0                      42      MOVE.B    -(A0),(A1)
+0000102E  12E0                      43      MOVE.B    -(A0),(A1)+
+00001030  1320                      44      MOVE.B    -(A0),-(A1)
+00001032  3200                      45      MOVE.W    D0,D1
+00001034  3080                      46      MOVE.W    D0,(A0)
+00001036  30C0                      47      MOVE.W    D0,(A0)+
+00001038  3100                      48      MOVE.W    D0,-(A0)
+0000103A  3008                      49      MOVE.W    A0,D0
+0000103C  3288                      50      MOVE.W    A0,(A1)
+0000103E  32C8                      51      MOVE.W    A0,(A1)+
+00001040  3308                      52      MOVE.W    A0,-(A1)
+00001042  3010                      53      MOVE.W    (A0),D0
+00001044  3290                      54      MOVE.W    (A0),(A1)
+00001046  32D0                      55      MOVE.W    (A0),(A1)+
+00001048  3310                      56      MOVE.W    (A0),-(A1)
+0000104A  3018                      57      MOVE.W    (A0)+,D0
+0000104C  3298                      58      MOVE.W    (A0)+,(A1)
+0000104E  32D8                      59      MOVE.W    (A0)+,(A1)+
+00001050  3318                      60      MOVE.W    (A0)+,-(A1)
+00001052  3020                      61      MOVE.W    -(A0),D0
+00001054  32A0                      62      MOVE.W    -(A0),(A1)
+00001056  32E0                      63      MOVE.W    -(A0),(A1)+
+00001058  3320                      64      MOVE.W    -(A0),-(A1)
+0000105A  2200                      65      MOVE.L    D0,D1
+0000105C  2080                      66      MOVE.L    D0,(A0)
+0000105E  20C0                      67      MOVE.L    D0,(A0)+
+00001060  2100                      68      MOVE.L    D0,-(A0)
+00001062  2008                      69      MOVE.L    A0,D0
+00001064  2288                      70      MOVE.L    A0,(A1)
+00001066  22C8                      71      MOVE.L    A0,(A1)+
+00001068  2308                      72      MOVE.L    A0,-(A1)
+0000106A  2010                      73      MOVE.L    (A0),D0
+0000106C  2290                      74      MOVE.L    (A0),(A1)
+0000106E  22D0                      75      MOVE.L    (A0),(A1)+
+00001070  2310                      76      MOVE.L    (A0),-(A1)
+00001072  2018                      77      MOVE.L    (A0)+,D0
+00001074  2298                      78      MOVE.L    (A0)+,(A1)
+00001076  22D8                      79      MOVE.L    (A0)+,(A1)+
+00001078  2318                      80      MOVE.L    (A0)+,-(A1)
+0000107A  2020                      81      MOVE.L    -(A0),D0
+0000107C  22A0                      82      MOVE.L    -(A0),(A1)
+0000107E  22E0                      83      MOVE.L    -(A0),(A1)+
+00001080  2320                      84      MOVE.L    -(A0),-(A1)
+00001082  48A1 007F                 85      MOVEM.W   A1-A7,-(A1)
+00001086  48E1 7F00                 86      MOVEM.L   D1-D7,-(A1)
+0000108A  48A1 0140                 87      MOVEM.W   A1/D7,-(A1)
+0000108E  48E1 0140                 88      MOVEM.L   A1/D7,-(A1)
+00001092  4891 FE00                 89      MOVEM.W   A1-A7,(A1)
+00001096  48D1 00FE                 90      MOVEM.L   D1-D7,(A1)
+0000109A  4891 0280                 91      MOVEM.W   A1/D7,(A1)
+0000109E  48D1 0280                 92      MOVEM.L   A1/D7,(A1)
+000010A2  4C99 FE00                 93      MOVEM.W   (A1)+,A1-A7
+000010A6  4CD9 00FE                 94      MOVEM.L   (A1)+,D1-D7
+000010AA  4C99 0280                 95      MOVEM.W   (A1)+,A1/D7
+000010AE  4CD9 0280                 96      MOVEM.L   (A1)+,A1/D7
+000010B2  4C91 FE00                 97      MOVEM.W   (A1),A1-A7
+000010B6  4CD1 00FE                 98      MOVEM.L   (A1),D1-D7
+000010BA  4C91 0280                 99      MOVEM.W   (A1),A1/D7
+000010BE  4CD1 0280                100      MOVEM.L   (A1),A1/D7
+000010C2  3040                     101      MOVEA.W    D0,A0
+000010C4  3048                     102      MOVEA.W    A0,A0
+000010C6  3050                     103      MOVEA.W    (A0),A0
+000010C8  3058                     104      MOVEA.W    (A0)+,A0
+000010CA  3060                     105      MOVEA.W    -(A0),A0
+000010CC  2040                     106      MOVEA.L    D0,A0
+000010CE  2048                     107      MOVEA.L    A0,A0
+000010D0  2050                     108      MOVEA.L    (A0),A0
+000010D2  2058                     109      MOVEA.L    (A0)+,A0
+000010D4  2060                     110      MOVEA.L    -(A0),A0  
+000010D6  D401                     111      ADD.B     D1,D2
+000010D8  D311                     112      ADD.B     D1,(A1)
+000010DA  D319                     113      ADD.B     D1,(A1)+
+000010DC  D321                     114      ADD.B     D1,-(A1)
+000010DE  D211                     115      ADD.B     (A1),D1
+000010E0  D219                     116      ADD.B     (A1)+,D1
+000010E2  D221                     117      ADD.B     -(A1),D1
+000010E4  D441                     118      ADD.W     D1,D2
+000010E6  D351                     119      ADD.W     D1,(A1)
+000010E8  D359                     120      ADD.W     D1,(A1)+
+000010EA  D361                     121      ADD.W     D1,-(A1)
+000010EC  D251                     122      ADD.W     (A1),D1
+000010EE  D259                     123      ADD.W     (A1)+,D1
+000010F0  D261                     124      ADD.W     -(A1),D1
+000010F2  D481                     125      ADD.L     D1,D2
+000010F4  D391                     126      ADD.L     D1,(A1)
+000010F6  D399                     127      ADD.L     D1,(A1)+
+000010F8  D3A1                     128      ADD.L     D1,-(A1)
+000010FA  D291                     129      ADD.L     (A1),D1
+000010FC  D299                     130      ADD.L     (A1)+,D1
+000010FE  D2A1                     131      ADD.L     -(A1),D1
+00001100  D4C1                     132      ADDA.W        D1,A2
+00001102  D4D1                     133      ADDA.W        (A1),A2
+00001104  D4D9                     134      ADDA.W        (A1)+,A2
+00001106  D4E1                     135      ADDA.W        -(A1),A2
+00001108  D5C1                     136      ADDA.L        D1,A2
+0000110A  D5D1                     137      ADDA.L        (A1),A2
+0000110C  D5D9                     138      ADDA.L        (A1)+,A2
+0000110E  D5E1                     139      ADDA.L        -(A1),A2
+00001110  9401                     140      SUB.B     D1,D2
+00001112  9311                     141      SUB.B     D1,(A1)
+00001114  9319                     142      SUB.B     D1,(A1)+
+00001116  9321                     143      SUB.B     D1,-(A1)
+00001118  9211                     144      SUB.B     (A1),D1
+0000111A  9219                     145      SUB.B     (A1)+,D1
+0000111C  9221                     146      SUB.B     -(A1),D1
+0000111E  9441                     147      SUB.W     D1,D2
+00001120  92C1                     148      SUB.W     D1,A1
+00001122  9351                     149      SUB.W     D1,(A1)
+00001124  9359                     150      SUB.W     D1,(A1)+
+00001126  9361                     151      SUB.W     D1,-(A1)
+00001128  9249                     152      SUB.W     A1,D1
+0000112A  9251                     153      SUB.W     (A1),D1
+0000112C  9259                     154      SUB.W     (A1)+,D1
+0000112E  9261                     155      SUB.W     -(A1),D1
+00001130  9481                     156      SUB.L     D1,D2
+00001132  93C1                     157      SUB.L     D1,A1
+00001134  9391                     158      SUB.L     D1,(A1)
+00001136  9399                     159      SUB.L     D1,(A1)+
+00001138  93A1                     160      SUB.L     D1,-(A1)
+0000113A  9289                     161      SUB.L     A1,D1
+0000113C  9291                     162      SUB.L     (A1),D1
+0000113E  9299                     163      SUB.L     (A1)+,D1
+00001140  92A1                     164      SUB.L     -(A1),D1    
+00001142  C3C0                     165      MULS.W    D0,D1
+00001144  C3D0                     166      MULS.W    (A0),D1
+00001146  C3E0                     167      MULS.W    -(A0),D1
+00001148  C3D8                     168      MULS.W    (A0)+,D1
+0000114A  82C0                     169      DIVU.W    D0,D1
+0000114C  82D0                     170      DIVU.W    (A0),D1
+0000114E  82E0                     171      DIVU.W    -(A0),D1
+00001150  82D8                     172      DIVU.W    (A0)+,D1
+00001152  C401                     173      AND.B     D1,D2
+00001154  C311                     174      AND.B     D1,(A1)
+00001156  C319                     175      AND.B     D1,(A1)+
+00001158  C321                     176      AND.B     D1,-(A1)
+0000115A  C211                     177      AND.B     (A1),D1
+0000115C  C219                     178      AND.B     (A1)+,D1
+0000115E  C221                     179      AND.B     -(A1),D1
+00001160  C441                     180      AND.W     D1,D2
+00001162  C351                     181      AND.W     D1,(A1)
+00001164  C359                     182      AND.W     D1,(A1)+
+00001166  C361                     183      AND.W     D1,-(A1)
+00001168  C251                     184      AND.W     (A1),D1
+0000116A  C259                     185      AND.W     (A1)+,D1
+0000116C  C261                     186      AND.W     -(A1),D1
+0000116E  C481                     187      AND.L     D1,D2
+00001170  C391                     188      AND.L     D1,(A1)
+00001172  C399                     189      AND.L     D1,(A1)+
+00001174  C3A1                     190      AND.L     D1,-(A1)
+00001176  C291                     191      AND.L     (A1),D1
+00001178  C299                     192      AND.L     (A1)+,D1
+0000117A  C2A1                     193      AND.L     -(A1),D1
+0000117C  8401                     194      OR.B     D1,D2
+0000117E  8311                     195      OR.B     D1,(A1)
+00001180  8319                     196      OR.B     D1,(A1)+
+00001182  8321                     197      OR.B     D1,-(A1)
+00001184  8211                     198      OR.B     (A1),D1
+00001186  8219                     199      OR.B     (A1)+,D1
+00001188  8221                     200      OR.B     -(A1),D1
+0000118A  8441                     201      OR.W     D1,D2
+0000118C  8351                     202      OR.W     D1,(A1)
+0000118E  8359                     203      OR.W     D1,(A1)+
+00001190  8361                     204      OR.W     D1,-(A1)
+00001192  8251                     205      OR.W     (A1),D1
+00001194  8259                     206      OR.W     (A1)+,D1
+00001196  8261                     207      OR.W     -(A1),D1
+00001198  8481                     208      OR.L     D1,D2
+0000119A  8391                     209      OR.L     D1,(A1)
+0000119C  8399                     210      OR.L     D1,(A1)+
+0000119E  83A1                     211      OR.L     D1,-(A1)
+000011A0  8291                     212      OR.L     (A1),D1
+000011A2  8299                     213      OR.L     (A1)+,D1
+000011A4  82A1                     214      OR.L     -(A1),D1
+000011A6  E32A                     215      LSL.B     D1,D2
+000011A8  E36A                     216      LSL.W     D1,D2
+000011AA  E3D1                     217      LSL.W     (A1)
+000011AC  E3D9                     218      LSL.W     (A1)+
+000011AE  E3E1                     219      LSL.W     -(A1)
+000011B0  E3AA                     220      LSL.L     D1,D2
+000011B2  E22A                     221      LSR.B     D1,D2
+000011B4  E26A                     222      LSR.W     D1,D2
+000011B6  E2D1                     223      LSR.W     (A1)
+000011B8  E2D9                     224      LSR.W     (A1)+
+000011BA  E2E1                     225      LSR.W     -(A1)
+000011BC  E2AA                     226      LSR.L     D1,D2    
+000011BE  E222                     227      ASR.B     D1,D2
+000011C0  E262                     228      ASR.W     D1,D2
+000011C2  E0D1                     229      ASR.W     (A1)
+000011C4  E0D9                     230      ASR.W     (A1)+
+000011C6  E0E1                     231      ASR.W     -(A1)
+000011C8  E2A2                     232      ASR.L     D1,D2
+000011CA  E322                     233      ASL.B     D1,D2
+000011CC  E362                     234      ASL.W     D1,D2
+000011CE  E1D1                     235      ASL.W     (A1)
+000011D0  E1D9                     236      ASL.W     (A1)+
+000011D2  E1E1                     237      ASL.W     -(A1)
+000011D4  E3A2                     238      ASL.L     D1,D2  
+000011D6  6E30                     239      BGT.B     label1
+000011D8  6E40                     240      BGT.B     label2
+000011DA  6F2C                     241      BLE.B     label1
+000011DC  6F3C                     242      BLE.B     label2
+000011DE  6C28                     243      BGE.B     label1
+000011E0  6738                     244      BEQ.B     label2
+000011E2  6700 0024                245      BEQ.W     label1
+000011E6  4E90                     246      JSR       (A0)
+000011E8  4EB8 1234                247      JSR       $1234
+000011EC  4EB9 12345678            248      JSR       $12345678
+000011F2  4EB9 00001208            249      JSR       label1
+000011F8  4EB9 0000121A            250      JSR       label2
+000011FE  4EB9 00001220            251      JSR       label3
+00001204  4E71                     252      NOP
+00001206  4E75                     253      RTS
+00001208                           254  label1
+00001208  4E71                     255      NOP
+0000120A  4E75                     256      RTS
+0000120C  41F8 0012                257      LEA       $12,A0
+00001210  41F8 1234                258      LEA       $1234,A0
+00001214  41F9 12345678            259      LEA       $12345678,A0
+0000121A                           260  label2
+0000121A  7000                     261      MOVEQ     #$0,D0
+0000121C  7012                     262      MOVEQ     #$12,D0
+0000121E  70FF                     263      MOVEQ     #$FF,D0
+00001220                           264  label3
+00001220  48B8 FE00 0012           265      MOVEM.W   A1-A7,$12
+00001226  48F8 00FE 0012           266      MOVEM.L   D1-D7,$12
+0000122C  48B8 0280 0012           267      MOVEM.W   A1/D7,$12
+00001232  48F8 0280 0012           268      MOVEM.L   A1/D7,$12
+00001238  48B8 FE00 1234           269      MOVEM.W   A1-A7,$1234
+0000123E  48F8 00FE 1234           270      MOVEM.L   D1-D7,$1234
+00001244  48B8 0280 1234           271      MOVEM.W   A1/D7,$1234
+0000124A  48F8 0280 1234           272      MOVEM.L   A1/D7,$1234
+00001250  48B9 FE00 12345678       273      MOVEM.W   A1-A7,$12345678
+00001258  48F9 00FE 12345678       274      MOVEM.L   D1-D7,$12345678
+00001260  48B9 0280 12345678       275      MOVEM.W   A1/D7,$12345678
+00001268  48F9 0280 12345678       276      MOVEM.L   A1/D7,$12345678
+00001270  4CB8 FE00 0012           277      MOVEM.W   $12,A1-A7
+00001276  4CF8 00FE 0012           278      MOVEM.L   $12,D1-D7
+0000127C  4CB8 0280 0012           279      MOVEM.W   $12,A1/D7
+00001282  4CF8 0280 0012           280      MOVEM.L   $12,A1/D7
+00001288  4CB8 FE00 1234           281      MOVEM.W   $1234,A1-A7
+0000128E  4CF8 00FE 1234           282      MOVEM.L   $1234,D1-D7
+00001294  4CB8 0280 1234           283      MOVEM.W   $1234,A1/D7
+0000129A  4CF8 0280 1234           284      MOVEM.L   $1234,A1/D7
+000012A0  4CB9 FE00 12345678       285      MOVEM.W   $12345678,A1-A7
+000012A8  4CF9 00FE 12345678       286      MOVEM.L   $12345678,D1-D7
+000012B0  4CB9 0280 12345678       287      MOVEM.W   $12345678,A1/D7
+000012B8  4CF9 0280 12345678       288      MOVEM.L   $12345678,A1/D7
+000012C0  D4F8 0012                289      ADDA.W    $12,A2
+000012C4  D4F8 1234                290      ADDA.W    $1234,A2
+000012C8  D4F9 12345678            291      ADDA.W    $12345678,A2
+000012CE  D4FC 1234                292      ADDA.W    #$1234,A2
+000012D2  D5F8 0012                293      ADDA.L    $12,A2
+000012D6  D5F8 1234                294      ADDA.L    $1234,A2
+000012DA  D5F9 12345678            295      ADDA.L    $12345678,A2
+000012E0  D5FC 12345678            296      ADDA.L    #$12345678,A2
+000012E6  C3F8 0012                297      MULS.W    $12,D1
+000012EA  C3F8 1234                298      MULS.W    $1234,D1
+000012EE  C3F9 12345678            299      MULS.W    $12345678,D1
+000012F4  C3FC 1234                300      MULS.W    #$1234,D1
+000012F8  82F8 0012                301      DIVU.W    $12,D1
+000012FC  82F8 1234                302      DIVU.W    $1234,D1
+00001300  82F9 12345678            303      DIVU.W    $12345678,D1
+00001306  82FC 1234                304      DIVU.W    #$1234,D1
+0000130A  C338 0012                305      AND.B     D1,$12
+0000130E  C338 1234                306      AND.B     D1,$1234
+00001312  C339 12345678            307      AND.B     D1,$12345678
+00001318  C238 0012                308      AND.B     $12,D1
+0000131C  C238 1234                309      AND.B     $1234,D1
+00001320  C239 12345678            310      AND.B     $12345678,D1
+00001326  C23C 0012                311      AND.B     #$12,D1
+0000132A  C378 0012                312      AND.W     D1,$12
+0000132E  C378 1234                313      AND.W     D1,$1234
+00001332  C379 12345678            314      AND.W     D1,$12345678
+00001338  C278 0012                315      AND.W     $12,D1
+0000133C  C278 1234                316      AND.W     $1234,D1
+00001340  C279 12345678            317      AND.W     $12345678,D1
+00001346  C27C 1234                318      AND.W     #$1234,D1
+0000134A  C3B8 0012                319      AND.L     D1,$12
+0000134E  C3B8 1234                320      AND.L     D1,$1234
+00001352  C3B9 12345678            321      AND.L     D1,$12345678
+00001358  C2B8 0012                322      AND.L     $12,D1
+0000135C  C2B8 1234                323      AND.L     $1234,D1
+00001360  C2B9 12345678            324      AND.L     $12345678,D1
+00001366  C2BC 12345678            325      AND.L     #$12345678,D1
+0000136C  E30A                     326      LSL.B     #$1,D2
+0000136E  E54A                     327      LSL.W     #$2,D2
+00001370  E78A                     328      LSL.L     #$3,D2
+00001372  E3F8 0012                329      LSL.W     $12
+00001376  E3F8 1234                330      LSL.W     $1234
+0000137A  E3F9 12345678            331      LSL.W     $12345678
+00001380  E202                     332      ASR.B     #$1,D2
+00001382  E442                     333      ASR.W     #$2,D2
+00001384  E682                     334      ASR.L     #$3,D2
+00001386  E0F8 0012                335      ASR.W     $12
+0000138A  E0F8 1234                336      ASR.W     $1234
+0000138E  E0F9 12345678            337      ASR.W     $12345678
+00001394                           338  label4
+00001394  6EFE                     339      BGT.B     label4
+00001396  6EFC                     340      BGT.B     label4
+00001398  6EFA                     341      BGT.B     label4
+0000139A  6F00 FE6C                342      BLE.W     label1
+0000139E  6F00 FE7A                343      BLE.W     label2
+000013A2  6F00 FE7C                344      BLE.W     label3
+000013A6  6700 FE60                345      BEQ.W     label1
+000013AA  6700 FE6E                346      BEQ.W     label2
+000013AE  6700 FE70                347      BEQ.W     label3
+000013B2  4EB8 1208                348      JSR       label1
+000013B6  4EB8 121A                349      JSR       label2
+000013BA  4EB8 1220                350      JSR       label3
+000013BE                           351  
+000013BE                           352  
+000013BE  FFFF FFFF                353      SIMHALT             ; halt simulator
+000013C2                           354  
+000013C2                           355  
+000013C2                           356      END    START        ; last line of source
+000013C2                           357  -------------------- end include --------------------
 
-No errors detected
+1 error detected
 No warnings generated
 
 
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-BUFFER              1144
-CLEAR_REG           1074
-CLOSE               105A
-CONVERT_TO_HEX      1060
-CR                  D
-DATA                120C
-DONE                1080
-FILENAME            1126
-FILESIZE            11A8
-INTRO               1084
-INTRODUCTION        1000
-INVALID_HEX         1080
-LF                  A
-PROMPT              1102
-READ                104C
+DEMO_TEST           1000
+LABEL1              1208
+LABEL2              121A
+LABEL3              1220
+LABEL4              1394
+NOP                 1000
 START               1000

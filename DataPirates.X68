@@ -9,6 +9,8 @@
 
 
 START   ORG             $1000           ;Start program at $1000
+demo_test  INCLUDE    "demo_test.X68"
+
 
 *-----------------------------------------------------------
 
@@ -100,6 +102,7 @@ BOUND2      DC.W        $0000           ; End of memory address
 *~Font size~10~
 *~Tab type~1~
 *~Tab size~4~
+
 
 
 *~Font name~Courier New~
