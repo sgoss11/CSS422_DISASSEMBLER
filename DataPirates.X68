@@ -174,7 +174,7 @@ INTRO       DC.B        '------------------------------------------',CR,LF
 INPUT1      DC.B        'Enter starting address: $',0        ; Ask user for lower boundary
 INPUT1_len  DC.W        INPUT1_len-INPUT1                    ; Gets the length of input string
 
-INPUT2      DC.B        'Enter ending address: $',0          ; Ask user for higher boundary
+INPUT2      DC.B        'Enter ending address: $',0          ; Ask user for upper boundary
 INPUT2_len  DC.W        INPUT2_len-INPUT2                    ; Gets the length of input string
 
 ERRMSG      DC.B        'Error! The input given is invalid!', 0
