@@ -11,10 +11,13 @@
 START       ORG        $1000            ; Start program at $1000
 
 *--------------------------------------------------------------------------------------------------------------
-*   Starting Prompt
+*   Start Program
 *--------------------------------------------------------------------------------------------------------------
 
-            BSR         INTRODUCTION    ; Program starting message
+INTRODUCTION
+            LEA         INTRO,A1        ; Program starting message
+            MOVE.B      #14,D0
+            TRAP        #15    
             
 MAIN_START  
             LEA         stack,SP        ; Load stack pointer  
@@ -22,13 +25,8 @@ MAIN_START
             MOVEA.L     A2,A6           ; reference start of main buffer
 
 *--------------------------------------------------------------------------------------------------------------
-*   Program Methods
+*   Exit and Clear Methods
 *--------------------------------------------------------------------------------------------------------------
-
-INTRODUCTION
-            LEA         INTRO,A1
-            MOVE.B      #14,D0
-            TRAP        #15
             
 EXIT_PROGRAM            
             MOVE.B      #task1,D0
