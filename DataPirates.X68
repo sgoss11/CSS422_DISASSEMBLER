@@ -96,7 +96,7 @@ CHECK_ADDRESS
 
 CHECK_START
             CMP.B       #$00,D5         ; Check if boolean is false
-            BEQ         ca_error        ; Address error
+            BEQ         CHECK_END       ; Address error
             MOVE.B      #TRUE,D5        ; Set boolean to true
             
 CHECK_END   RTS
