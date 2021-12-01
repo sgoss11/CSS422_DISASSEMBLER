@@ -53,7 +53,11 @@ GET_INPUT
             
             MOVEA.L     A4,A3           ; Stores starting address into A3
             MOVEA.L     A0,A4           ; Stores endinging address into A4
-            MOVEA.L     A3,A0           ; Stores starting address into A0 to be first  
+            MOVEA.L     A3,A0           ; Stores starting address into A0 to be first 
+            
+            BSR         CHECK_ADDRESS   ; Check if address is valid           
+            CMP         #FALSE,D5       ; If not valid, Bool = False
+            BEQ         GET_INPUT       ; Return to input prompts
 
 *--------------------------------------------------------------------------------------------------------------
 *   Exit and Clear Methods
@@ -83,7 +87,20 @@ CLEAR_REG
             MOVEA.L #$0, A5
             MOVEA.L #$0, A6
             RTS
-        
+
+*--------------------------------------------------------------------------------------------------------------
+*   CHECK ADDRESS VALIDITY
+*--------------------------------------------------------------------------------------------------------------
+
+CHECK_ADDRESS
+
+CHECK_START
+            CMP.B       #$00,D5         ; Check if boolean is false
+            BEQ         ca_error        ; Address error
+            MOVE.B      #TRUE,D5        ; Set boolean to true
+            
+CHECK_END   RTS
+
 
 *--------------------------------------------------------------------------------------------------------------
 *   Ascii To Hex   
