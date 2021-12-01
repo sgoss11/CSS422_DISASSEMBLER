@@ -20,9 +20,40 @@ INTRODUCTION
             TRAP        #15    
             
 MAIN_START  
+            BSR         CLEAR_REG       ; Clear all data registers    
             LEA         stack,SP        ; Load stack pointer  
             LEA         main_buff,A2    ; Load buffer in A2
-            MOVEA.L     A2,A6           ; reference start of main buffer
+            MOVEA.L     A2,A6           ; Reference start of main buffer
+
+*--------------------------------------------------------------------------------------------------------------
+*   USER INPUT   
+*--------------------------------------------------------------------------------------------------------------
+
+GET_INPUT    
+            MOVE        #task1,D0
+            LEA         INPUT1,A1       ; Prompt user to enter start boundary
+            MOVE.W      INPUT1_len,D1         
+            TRAP        #15
+            ADDA        #INPUT1_len,A1  ; Adds user input after prompt
+            MOVE        #task2,D0      
+            TRAP        #15
+            JSR         asciiTOhex      ; Save info to stack, checks if valid
+            CMP.B       #$00,D5         ; Check if boolean is false
+            
+            MOVEA.L     A0,A4         
+            MOVE.B      #task1,D0
+            LEA         INPUT2,A1       ; Prompt user to enter end boundary
+            MOVE.W      INPUT2_len,D1         
+            TRAP        #15         
+            ADDA.L      #INPUT2_len,A1  ; Add user input after prompt
+            MOVE.B      #task2,D0
+            TRAP        #15
+            JSR         asciiTOhex      ; Save info to stack, checks if valid
+            CMP.B       #$00,D5         ; Check if boolean is false
+            
+            MOVEA.L     A4,A3           ; Stores starting address into A3
+            MOVEA.L     A0,A4           ; Stores endinging address into A4
+            MOVEA.L     A3,A0           ; Stores starting address into A0 to be first  
 
 *--------------------------------------------------------------------------------------------------------------
 *   Exit and Clear Methods
@@ -53,36 +84,6 @@ CLEAR_REG
             MOVEA.L #$0, A6
             RTS
         
-*--------------------------------------------------------------------------------------------------------------
-*   USER INPUT   
-*--------------------------------------------------------------------------------------------------------------
-
-GET_INPUT            
-            JSR         CLEAR_REG       ; clears all registers before starting
-            NOP                         ; To prevent instruction overlap
-            LEA         INPUT1,A1       ; Prompt user to enter first boundary
-            MOVE        #14,D0
-            TRAP        #15
-            MOVE.L      #2,D0       
-            TRAP        #15
-            
-            JSR         CONVERT_TO_HEX  ; Get first address
-            MOVE.B      #14,D0                          --------> WHAT IS THIS DOING??
-            TRAP        #15
-            MOVE.W      A0,CURADR        ;copies the address to currnet address 
-
-            LEA         INPUT2,A1       ; Prompt user to enter second boundary
-            MOVE        #14,D0
-            TRAP        #15
-            LEA         BOUND2
-            MOVE.L      #2,D0       
-            TRAP        #15
-            
-            JSR         CONVERT_TO_HEX  ; Get second address
-            MOVE.B      #14,D0
-            TRAP        #15
-            MOVE.W      D1,BOUND2       ; move address to end of memory
-      
 
 *--------------------------------------------------------------------------------------------------------------
 *   Ascii To Hex   
@@ -156,7 +157,7 @@ NEXT_STEP
             
                    
 
-DONE    
+RETURN    
             MOVE.L  #0, A0          *basucally empties
             MOVE.L  D4, A0          *moves the final address to a0
             RTS                     *goes back to subroutine    
@@ -178,8 +179,16 @@ INPUT2_len  DC.W        INPUT2_len-INPUT2                    ; Gets the length o
 ERRMSG      DC.B        'Error! The input given is invalid!', 0
 ERRADD      DC.B        'Error! The address given is invalid', 0
 
+MORE_DATA   DC.B        'Press enter for more data',0
+MORE_len    DC.W        MORE_DATA-MORE_len
+
+CONTINUE    DC.B        'Would you like to continue disassembling? Y = 1, N = 0: ',0
+CONT_len    DC.W        CONT_len-CONTINUE
+
 EXIT        DC.B        'End of program',0
 EXIT_len    DC.W        EXIT_len-EXIT  
+
+main_buff   DC.B        1
 
 
 *--------------------------------------------------------------------------------------------------------------
@@ -189,8 +198,9 @@ EXIT_len    DC.W        EXIT_len-EXIT
 CR          EQU         $0D
 LF          EQU         $0A
 
-BOUND1      DC.W        $0000           ; Start of memory address
-BOUND2      DC.W        $0000           ; End of memory address
+minBOUND    DC.W        $00000000       ; Minimum bound
+minBOUND    DC.W        $FFFFFFFF       ; Maximum bound
+
 CURRENTADDR DC.L        1               ; holds the address of instruscion
 
 stack       EQU         $A000           ; Stack Address
@@ -200,7 +210,7 @@ FALSE       EQU         0               ; Boolean - is false
 task0       EQU         00              ; output command
 task1       EQU         01              ; output command
 
-main_buff   DC.B        1
+
 
    
 
