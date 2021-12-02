@@ -45,7 +45,7 @@ GET_INPUT
             ADDA        #INPUT1_len,A1  ; Adds user input after prompt
             MOVE        #task2,D0      
             TRAP        #15
-            JSR         CONVERT_TO_HEX  ; Save info to stack, checks if valid
+            JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
             
             MOVEA.L     A0,A4         
@@ -56,7 +56,7 @@ GET_INPUT
             ADDA.L      #INPUT2_len,A1  ; Add user input after prompt
             MOVE.B      #task2,D0
             TRAP        #15
-            JSR         CONVERT_TO_HEX  ; Save info to stack, checks if valid
+            JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
             
             MOVEA.L     A4,A3           ; Stores starting address into A3
@@ -91,8 +91,8 @@ GET_INPUT
 
 
 *--------------------------------------------------------------------------------------------------------------
-*   CHECK ADDRESS VALIDITY: Checks if address is even, is within boundaries, and if
-*                           the starting address isn't greater than the ending
+*   CHECK ADDRESS: Checks if address is even, is within boundaries, and if
+*                  the starting address isn't greater than the ending
 *   
 *   Registers used:
 *       - A0: starting address (INPUT1)
@@ -323,7 +323,8 @@ task2       EQU         02              ; output command
 *   END OF PROGRAM
 *-----------------------------------------------------------        
 
-END         END     start
+END         STOP    #$2700
+            END     start
 
 
 *~Font name~Courier New~
