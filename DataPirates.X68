@@ -125,7 +125,7 @@ ADD1        MOVE.L      A0,D2           ; Loads start boundary to D regs
             MOVE.L      D2,D3
             ANDI.B      #1,D3           ; Checks last bit in D2
             CMP.B       #1,D3
-            BNE         lastAdd         ; Last bit = 0; go to even branch
+            BNE         minBOUND        ; Last bit = 0; go to even branch
             
 SUB1        SUBI.B      #$1,D2          ; Allows odd address to be even
             MOVE.L      D2,A0    
@@ -139,11 +139,11 @@ ADD2        MOVE.L      A4,D2           ; Loads ending boundary to D regs
 SUB2        SUBI.B      #$1,D2          ; Allows odd address to be even
             MOVE.L      D2,A4
               
-EQU1        CMP.L       #maxAdd,A0      ; Checks if starting address < $00FFFFFF
+EQU1        CMP.L       #maxBOUND,A0      ; Checks if starting address < $00FFFFFF
             BLT         EQU2            ; If so, branch to EQU2        
             JMP         CHECK_ERROR     ; If not, address error
             
-EQU2        CMP.L       #maxAdd,A4      ; checks if ending address <= $00FFFFFF
+EQU2        CMP.L       #maxBOUND,A4      ; checks if ending address <= $00FFFFFF
             BLE         EQU3            ; If so, branch to EQU3
             JMP         CHECK_ERROR     ; If not, address error               
             
@@ -283,7 +283,7 @@ CR          EQU         $0D
 LF          EQU         $0A
 
 minBOUND    DC.W        $00000000       ; Minimum bound
-minBOUND    DC.W        $0000FFFF       ; Maximum bound
+maxBOUND    DC.W        $0000FFFF       ; Maximum bound
 
 CURRENTADDR DC.L        1               ; holds the address of instruscion
 
