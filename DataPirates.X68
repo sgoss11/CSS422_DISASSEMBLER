@@ -263,8 +263,8 @@ main_buff   DC.B        1
 CR          EQU         $0D
 LF          EQU         $0A
 
-minBOUND    DC.W        $00000000       ; Minimum bound
-maxBOUND    DC.L        $00FFFFFF       ; Maximum bound
+minBOUND    EQU         $00000000       ; Minimum bound
+maxBOUND    EQU         $00FFFFFF       ; Maximum bound
 
 CURRENTADDR DC.L        1               ; holds the address of instruscion
 
@@ -274,7 +274,7 @@ TRUE        EQU         1               ; Boolean - is true
 FALSE       EQU         0               ; Boolean - is false
 task0       EQU         00              ; output command
 task1       EQU         01              ; output command
-task2       EQU         01              ; output command
+task2       EQU         02              ; output command
 
 
    
