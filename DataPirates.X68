@@ -34,7 +34,7 @@ MAIN_START
 *       - A0: starting address (INPUT1)
 *       - A4: ending address (INPUT2)
 *       - D2: copy of address
-*       - D3: utility register
+*       - D3: placeholder register
 *       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
     
@@ -100,7 +100,7 @@ GET_INPUT
 *       - A0: starting address (INPUT1)
 *       - A4: ending address (INPUT2)
 *       - D2: copy of address
-*       - D3: utility register
+*       - D3: placeholder register
 *       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
                
