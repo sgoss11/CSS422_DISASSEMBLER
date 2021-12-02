@@ -149,7 +149,12 @@ CHECK_END   RTS
 
 
 *--------------------------------------------------------------------------------------------------------------
-*   Ascii To Hex   
+*   Ascii To Hex: Add data to stack, converts to hex, and checks length of address
+*   
+*   Registers used:
+*       - D3 - Placeholder for current ascii byte (based off of user's input address)   
+*       - D4 - Translated Address
+*       - A0 - At the end of the routine, store the converted address here
 *--------------------------------------------------------------------------------------------------------------
 
 ASCII_TO_HEX
