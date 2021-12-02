@@ -64,8 +64,7 @@ GET_INPUT
             MOVE.B      #task1,D0
             LEA         REPEAT,A1       ; Asks if user wants to enter new boundaries
             MOVE.W      REPEAT_len,D1
-            TRAP        #15
-            
+            TRAP        #15            
             MOVE.B      #task2,D0
             TRAP        #15
             
