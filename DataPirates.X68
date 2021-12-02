@@ -58,6 +58,29 @@ GET_INPUT
             BSR         CHECK_ADDRESS   ; Check if address is valid           
             CMP         #FALSE,D5       ; If not valid, Bool = False
             BEQ         GET_INPUT       ; Return to input prompts
+            
+            BSR         BUFFER          ; To fill buffer with current address
+            
+            MOVE.B      #task1,D0
+            LEA         REPEAT,A1       ; Asks if user wants to enter new boundaries
+            MOVE.W      REPEAT_len,D1
+            TRAP        #15
+            
+            MOVE.B      #task2,D0
+            TRAP        #15
+            
+            MOVE.B      (A1),D3         ; Copies user input to D3
+            
+            MOVE.B      #$57,(A1)+      ; Write in "W"
+            MOVE.B      #$6F,(A1)       ; Write in "u"
+            
+            CMP.B       #$31,D3         ; Compares ASCII values to D3
+            BEQ         MAIN_START
+             
+            BEQ         MAIN_START      ; Restart input prompts
+            
+            BSR         EXIT_PROGRAM    ; Exit program                  
+            JMP         END
 
 *--------------------------------------------------------------------------------------------------------------
 *   Exit and Clear Methods
@@ -92,13 +115,49 @@ CLEAR_REG
 *   CHECK ADDRESS VALIDITY
 *--------------------------------------------------------------------------------------------------------------
 
-CHECK_ADDRESS
+CHECK_ADDRESS:
 
 CHECK_START
             CMP.B       #$00,D5         ; Check if boolean is false
-            BEQ         CHECK_END       ; Address error
+            BEQ         CHECK_ERROR     ; Address error
             MOVE.B      #TRUE,D5        ; Set boolean to true
+
+ADD1        MOVE.L      A0,D2           ; Loads start boundary to D regs
+            MOVE.L      D2,D3
+            ANDI.B      #1,D3           ; Checks last bit in D2
+            CMP.B       #1,D3
+            BNE         lastAdd         ; Last bit = 0; go to even branch
             
+SUB1        SUBI.B      #$1,D2          ; Allows odd address to be even
+            MOVE.L      D2,A0    
+            
+ADD2        MOVE.L      A4,D2           ; Loads ending boundary to D regs
+            MOVE.L      D2,D3
+            ANDI.B      #1,D3           ; Checks last bit in D2
+            CMP.B       #1,D3
+            BNE         EQU1 
+            
+SUB2        SUBI.B      #$1,D2          ; Allows odd address to be even
+            MOVE.L      D2,A4
+              
+EQU1        CMP.L       #maxAdd,A0      ; Checks if starting address < $00FFFFFF
+            BLT         EQU2            ; If so, branch to EQU2        
+            JMP         CHECK_ERROR     ; If not, address error
+            
+EQU2        CMP.L       #maxAdd,A4      ; checks if ending address <= $00FFFFFF
+            BLE         EQU3            ; If so, branch to EQU3
+            JMP         CHECK_ERROR     ; If not, address error               
+            
+EQU3        CMPA.L      A0,A4           ; Checks if ending address > starting address
+            BGT         CHECK_END
+               
+CHECK_ERROR
+            MOVE.B      #task0,D0
+            LEA         ERRPARAM,A1
+            MOVE.W      PARAM_len,D1
+            TRAP        #15        
+            MOVE.B      #FALSE,D5
+                        
 CHECK_END   RTS
 
 
@@ -180,6 +239,15 @@ RETURN
             RTS                     *goes back to subroutine    
 
 *--------------------------------------------------------------------------------------------------------------
+*   BUFFER 
+*--------------------------------------------------------------------------------------------------------------
+
+BUFFER      
+            
+endBuff     RTS   
+
+
+*--------------------------------------------------------------------------------------------------------------
 *   MESSAGES   
 *--------------------------------------------------------------------------------------------------------------
 
@@ -216,7 +284,7 @@ CR          EQU         $0D
 LF          EQU         $0A
 
 minBOUND    DC.W        $00000000       ; Minimum bound
-minBOUND    DC.W        $FFFFFFFF       ; Maximum bound
+minBOUND    DC.W        $0000FFFF       ; Maximum bound
 
 CURRENTADDR DC.L        1               ; holds the address of instruscion
 
