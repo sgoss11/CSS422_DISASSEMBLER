@@ -182,37 +182,37 @@ CONVERT_TO_HEX
             BGT         INVALID_HEX 
       
 NEXT_STEP    
-            ADD         #1,D6               * increment length counter
-            CMP         #6,D6               * compare to 6
-            BEQ         return              * if length is 6 digits long, jump to return              
-            CMP.B       #$00,(A1)           * null terminator? if so, we are done
-            BEQ         return              * move to clean-up duties
-            ASL.L       #4,D4               * shift D4 left by 4 bits in order to make room for next value            
-            JMP         CONVERT_TO_HEX      * perform clean-up duties & exit subroutine
+            ADD         #1,D6               ; increment length counter
+            CMP         #6,D6               ; compare to 6
+            BEQ         return              ; if length is 6 digits long, jump to return              
+            CMP.B       #$00,(A1)           ; null terminator? if so, we are done
+            BEQ         return              ; move to clean-up duties
+            ASL.L       #4,D4               ; shift D4 left by 4 bits in order to make room for next value            
+            JMP         CONVERT_TO_HEX      ; perform clean-up duties & exit subroutine
 
 GET_NUMBER
-            SUBI.B      #$30,D3             * subtracting hex values leaves us with appropriate single-digit hex value
-            ADD.B       D3,D4               * add latest hex value to temporary storage
-            JMP         NEXT_STEP           * resume regularly sheduled programming
+            SUBI.B      #$30,D3             ; subtracting hex values leaves us with appropriate single-digit hex value
+            ADD.B       D3,D4               ; add latest hex value to temporary storage
+            JMP         NEXT_STEP           ; resume regularly sheduled programming
 
 GET_CAPITAL
-            SUBI.B      #$37,D3             * subtracting hex values leaves us with appropriate capital letter hex value
-            ADD.B       D3,D4               * add latest hex value to temporary storag
-            JMP         NEXT_STEP           * resume regularly sheduled programming
+            SUBI.B      #$37,D3             ; subtracting hex values leaves us with appropriate capital letter hex value
+            ADD.B       D3,D4               ; add latest hex value to temporary storag
+            JMP         NEXT_STEP           ; resume regularly sheduled programming
 
 GET_LOWERCASE
-            SUBI.B      #$57,D3             * subtracting hex values leaves us with appropriate lowercase letter hex value
-            ADD.B       D3,D4               * add latest hex value to temporary storag
-            JMP         NEXT_STEP           * resume regularly sheduled programming
+            SUBI.B      #$57,D3             ; subtracting hex values leaves us with appropriate lowercase letter hex value
+            ADD.B       D3,D4               ; add latest hex value to temporary storag
+            JMP         NEXT_STEP           ; resume regularly sheduled programming
 
 INVALID_HEX 
-            MOVE.B      #00,D5              * set FALSE      
-            JMP         return              * perform clean-up duties & exit subroutine
+            MOVE.B      #00,D5              ; set FALSE      
+            JMP         return              ; perform clean-up duties & exit subroutine
 
 RETURN      MOVE.L      D4,A0
-            CLR         D6                  * clear counter
-            MOVEM.L     (SP)+,D0-D4         * load data registers from stack      
-            RTS                             * return from subroutine
+            CLR         D6                  ; clear counter
+            MOVEM.L     (SP)+,D0-D4         ; load data registers from stack      
+            RTS                             ; return from subroutine
     
 
 *--------------------------------------------------------------------------------------------------------------
