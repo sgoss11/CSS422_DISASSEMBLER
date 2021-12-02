@@ -7,7 +7,6 @@
 *              of valid assembly language instructions
 *--------------------------------------------------------------------------------------------------------------
 
-
 START       ORG        $1000            ; Start program at $1000
 
 *--------------------------------------------------------------------------------------------------------------
@@ -20,7 +19,7 @@ INTRODUCTION
             TRAP        #15    
             
 MAIN_START  
-            BSR         CLEAR_REG       ; Clear all data registers    
+            BSR         CLEAR_REG1      ; Clear all data registers    
             LEA         stack,SP        ; Load stack pointer  
             LEA         main_buff,A2    ; Load buffer in A2
             MOVEA.L     A2,A6           ; Reference start of main buffer
@@ -35,8 +34,8 @@ MAIN_START
 *       - A4: ending address (INPUT2)
 *       - D2: copy of address
 *       - D3: utility register
+*       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
-
 
 GET_INPUT    
             MOVE        #task1,D0
@@ -93,13 +92,14 @@ GET_INPUT
 
 *--------------------------------------------------------------------------------------------------------------
 *   CHECK ADDRESS VALIDITY: Checks if address is even, is within boundaries, and if
-*                           the starting address isn't greater than the ending, 
+*                           the starting address isn't greater than the ending
 *   
 *   Registers used:
 *       - A0: starting address (INPUT1)
 *       - A4: ending address (INPUT2)
 *       - D2: copy of address
 *       - D3: utility register
+*       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
 
 CHECK_ADDRESS:
@@ -152,16 +152,17 @@ CHECK_END   RTS
 *   Ascii To Hex: Add data to stack, converts to hex, and checks length of address
 *   
 *   Registers used:
-*       - D3 - Placeholder for current ascii byte (based off of user's input address)   
-*       - D4 - Translated Address
-*       - A0 - At the end of the routine, store the converted address here
+*       - D3: Placeholder for current ascii byte (based off of user's input address)   
+*       - D4: Translated Address
+*       - D5: Boolean
+*       - A0: At the end of the routine, store the converted address here
 *--------------------------------------------------------------------------------------------------------------
 
 ASCII_TO_HEX
 
             MOVEM.L     D0-D4,-(SP)         ; Saves data registers to stack
             MOVE.B      #TRUE,D5            ; Bool = true
-            JSR         CLEAR_REG
+            JSR         CLEAR_REG2
             MOVE        #length,D6      
       
 CONVERT_TO_HEX
@@ -236,23 +237,34 @@ EXIT_PROGRAM
             TRAP        #15
             RTS  
             
-CLEAR_REG
-            CLR D0                      ; clears all data registers
-            CLR D1
-            CLR D2                       
-            CLR D3
-            CLR D4
-            CLR D6
-            CLR D7
+CLEAR_REG1
+            CLR         D0              ; clears all data registers
+            CLR         D1
+            CLR         D2
+            CLR         D3
+            CLR         D4
+            CLR         D5
+            CLR         D6
+            CLR         D7
             
-            MOVEA.L #$0, A0
-            MOVEA.L #$0, A1
-            MOVEA.L #$0, A2
-            MOVEA.L #$0, A3
-            MOVEA.L #$0, A4
-            MOVEA.L #$0, A5
-            MOVEA.L #$0, A6
+            MOVEA.L     #$0, A0
+            MOVEA.L     #$0, A1
+            MOVEA.L     #$0, A2
+            MOVEA.L     #$0, A3
+            MOVEA.L     #$0, A4
+            MOVEA.L     #$0, A5
+            MOVEA.L     #$0, A6            
             RTS
+             
+CLEAR_REG2  
+            CLR.L   D0                  ; Clears all data registers, except boolean (D5)
+            CLR.L   D1
+            CLR.L   D2
+            CLR.L   D3
+            CLR.L   D4
+            CLR.L   D6
+            CLR.L   D7
+            RTS     
             
             
 *--------------------------------------------------------------------------------------------------------------
@@ -307,10 +319,11 @@ task0       EQU         00              ; output command
 task1       EQU         01              ; output command
 task2       EQU         02              ; output command
 
+*-----------------------------------------------------------
+*   END OF PROGRAM
+*-----------------------------------------------------------        
 
-   
-
-            END         START           ; last line of source
+END         END     start
 
 
 *~Font name~Courier New~
