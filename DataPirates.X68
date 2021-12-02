@@ -9,21 +9,22 @@
 
 START       ORG        $1000            ; Start program at $1000
 
-*--------------------------------------------------------------------------------------------------------------
-*   Start Program
-*--------------------------------------------------------------------------------------------------------------
-
+*-----------------------------------------------------------
+*   START OF PROGRAM
+*-----------------------------------------------------------
+            
 INTRODUCTION
-            LEA         INTRO,A1        ; Program starting message
-            MOVE.B      #14,D0
-            TRAP        #15    
+            MOVE.B      #14,D0          ; Program starting message
+            LEA         INTRO,A1
+            TRAP        #15      
             
 MAIN_START  
             BSR         CLEAR_REG1      ; Clear all data registers    
             LEA         stack,SP        ; Load stack pointer  
             LEA         main_buff,A2    ; Load buffer in A2
             MOVEA.L     A2,A6           ; Reference start of main buffer
-
+            
+            
 *--------------------------------------------------------------------------------------------------------------
 *   USER INPUT: User inputs upper and lower bound for dissasembler, from
 *               there it will be added to a stack and checked if address 
@@ -36,7 +37,7 @@ MAIN_START
 *       - D3: utility register
 *       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
-
+    
 GET_INPUT    
             MOVE        #task1,D0
             LEA         INPUT1,A1       ; Prompt user to enter start boundary
@@ -61,7 +62,7 @@ GET_INPUT
             
             MOVEA.L     A4,A3           ; Stores starting address into A3
             MOVEA.L     A0,A4           ; Stores endinging address into A4
-            MOVEA.L     A3,A0           ; Stores starting address into A0 to be first 
+            MOVEA.L     A3,A0           ; Stores starting address into A0 to be swapped                   
             
             BSR         CHECK_ADDRESS   ; Check if address is valid           
             CMP         #FALSE,D5       ; If not valid, Bool = False
@@ -72,14 +73,15 @@ GET_INPUT
             MOVE.B      #task1,D0
             LEA         REPEAT,A1       ; Asks if user wants to enter new boundaries
             MOVE.W      REPEAT_len,D1
-            TRAP        #15            
+            TRAP        #15
+            
             MOVE.B      #task2,D0
             TRAP        #15
             
             MOVE.B      (A1),D3         ; Copies user input to D3
             
-            MOVE.B      #$57,(A1)+      ; Write in "W"
-            MOVE.B      #$6F,(A1)       ; Write in "u"
+            MOVE.B      #$57,(A1)+      ; Write in 'W'
+            MOVE.B      #$6F,(A1)       ; Write in 'u'
             
             CMP.B       #$31,D3         ; Compares ASCII values to D3
             BEQ         MAIN_START
@@ -88,11 +90,11 @@ GET_INPUT
             
             BSR         EXIT_PROGRAM    ; Exit program                  
             JMP         END
-
-
+        
+        
 *--------------------------------------------------------------------------------------------------------------
-*   CHECK ADDRESS: Checks if address is even, is within boundaries, and if
-*                  the starting address isn't greater than the ending
+*   CHECK ADDRESS VALIDITY: Checks if address is even, is within boundaries, and if
+*                           the starting address isn't greater than the ending
 *   
 *   Registers used:
 *       - A0: starting address (INPUT1)
@@ -101,7 +103,7 @@ GET_INPUT
 *       - D3: utility register
 *       - D5: boolean
 *--------------------------------------------------------------------------------------------------------------
-
+               
 CHECK_ADDRESS:
 
 CHECK_START
@@ -113,7 +115,7 @@ ADD1        MOVE.L      A0,D2           ; Loads start boundary to D regs
             MOVE.L      D2,D3
             ANDI.B      #1,D3           ; Checks last bit in D2
             CMP.B       #1,D3
-            BNE         minBOUND        ; Last bit = 0; go to even branch
+            BNE         ADD2            ; Last bit = 0; go to even branch
             
 SUB1        SUBI.B      #$1,D2          ; Allows odd address to be even
             MOVE.L      D2,A0    
@@ -127,11 +129,11 @@ ADD2        MOVE.L      A4,D2           ; Loads ending boundary to D regs
 SUB2        SUBI.B      #$1,D2          ; Allows odd address to be even
             MOVE.L      D2,A4
               
-EQU1        CMP.L       #maxBOUND,A0      ; Checks if starting address < $00FFFFFF
+EQU1        CMP.L       #maxBOUND,A0    ; Checks if starting address < $00FFFFFF
             BLT         EQU2            ; If so, branch to EQU2        
             JMP         CHECK_ERROR     ; If not, address error
             
-EQU2        CMP.L       #maxBOUND,A4      ; checks if ending address <= $00FFFFFF
+EQU2        CMP.L       #maxBOUND,A4    ; checks if ending address <= $00FFFFFF
             BLE         EQU3            ; If so, branch to EQU3
             JMP         CHECK_ERROR     ; If not, address error               
             
@@ -140,10 +142,10 @@ EQU3        CMPA.L      A0,A4           ; Checks if ending address > starting ad
                
 CHECK_ERROR
             MOVE.B      #task0,D0
-            LEA         ERRPARAM,A1
+            LEA         ERRPARAM,A1     ; Display invalid parameter msg
             MOVE.W      PARAM_len,D1
             TRAP        #15        
-            MOVE.B      #FALSE,D5
+            MOVE.B      #FALSE,D5       ; Bool = False
                         
 CHECK_END   RTS
 
@@ -154,7 +156,7 @@ CHECK_END   RTS
 *   Registers used:
 *       - D3: Placeholder for current ascii byte (based off of user's input address)   
 *       - D4: Translated Address
-*       - D5: Boolean
+*       - D5: boolean
 *       - A0: At the end of the routine, store the converted address here
 *--------------------------------------------------------------------------------------------------------------
 
@@ -203,40 +205,48 @@ GET_CAPITAL
 
 GET_LOWERCASE
             SUBI.B      #$57,D3             ; converts lowercase hex value
-            ADD.B       D3,D4               ; updates d4
+            ADD.B       D3,D4               ; updates D4
             JMP         NEXT_STEP           ; goes to loop
 
 INVALID_HEX 
-            MOVE.B      #00,D5              ; Boolean = FALSE      
+            MOVE.B      #00,D5              ; Checks if bool is FALSE      
             JMP         return              ; Exits subroutine
 
-RETURN      MOVE.L      D4,A0               ; Moves the final address to a0
+RETURN      MOVE.L      D4,A0               ; Moves the final address to A0
             CLR         D6                  ; Clears counter
             MOVEM.L     (SP)+,D0-D4         ; Load D registers from stack      
             RTS                             ; Return from subroutine
-
-    
-
+               
+               
 *--------------------------------------------------------------------------------------------------------------
-*   BUFFER 
+*   BUFFER: gets buffer ready for current address, OpCode, and EA
+*
+*   Registers used:   
+*       - A0: Current address
+*       - A1: Trap Address
+*       - A2: Buffer Pointer
+*       - A4: Ending Address
+*       - D0: task number
+*       - D1: length of MORE_DATA
+*       - D7: counter for number of lines printed
 *--------------------------------------------------------------------------------------------------------------
 
-BUFFER      
-            
+BUFFER      MOVEA.L     A6,A2         
+            MOVEA.L     A2,A1               ; load trap address with A2            
+                       
 endBuff     RTS   
-
 
 *--------------------------------------------------------------------------------------------------------------
 *   Exit and Clear Methods
 *--------------------------------------------------------------------------------------------------------------
-            
+
 EXIT_PROGRAM            
             MOVE.B      #task1,D0
             LEA         EXIT,A1
             MOVE.W      EXIT_len,D1
             TRAP        #15
-            RTS  
-            
+            RTS        
+
 CLEAR_REG1
             CLR         D0              ; clears all data registers
             CLR         D1
@@ -257,7 +267,7 @@ CLEAR_REG1
             RTS
              
 CLEAR_REG2  
-            CLR.L   D0                  ; Clears all data registers, except boolean (D5)
+            CLR.L   D0                  ; Clears each register except boolean (D5)
             CLR.L   D1
             CLR.L   D2
             CLR.L   D3
@@ -265,7 +275,7 @@ CLEAR_REG2
             CLR.L   D6
             CLR.L   D7
             RTS     
-            
+
             
 *--------------------------------------------------------------------------------------------------------------
 *   MESSAGES   
@@ -315,6 +325,7 @@ stack       EQU         $A000           ; Stack Address
 length      EQU         0               ; Effective address length to be stored in D reg
 TRUE        EQU         1               ; Boolean - is true
 FALSE       EQU         0               ; Boolean - is false
+lineCount   EQU         25              ; Total lines to be displayed
 task0       EQU         00              ; output command
 task1       EQU         01              ; output command
 task2       EQU         02              ; output command
