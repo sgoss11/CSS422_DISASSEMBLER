@@ -1,0 +1,37 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 12/1/2021 5:24:37 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  *       Effective Addressing
+00000000                             3  *-----------------------------------------------------------
+00000000                             4     
+00001000                             5  START:       ORG       $1000   ; first instruction of program
+00001000                             6  
+00001000                             7  OPCODE_EA:
+00001000                             8  
+00001000  302F 0008                  9               MOVE.W         8(SP),D0
+00001004                            10               
+00001004                            11  
+00001004                            12  
+00001004                            13  
+00001004                            14  
+00001004                            15  
+00001004                            16  
+00001004                            17  
+00001004                            18  
+00001004  FFFF FFFF                 19      SIMHALT             ; halt simulator
+00001008                            20  
+00001008                            21  * Put variables and constants here
+00001008                            22  
+00001008                            23      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+OPCODE_EA           1000
+START               1000
