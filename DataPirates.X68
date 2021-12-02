@@ -283,7 +283,7 @@ CR          EQU         $0D
 LF          EQU         $0A
 
 minBOUND    DC.W        $00000000       ; Minimum bound
-maxBOUND    DC.W        $0000FFFF       ; Maximum bound
+maxBOUND    DC.W        $00FFFFFF       ; Maximum bound
 
 CURRENTADDR DC.L        1               ; holds the address of instruscion
 
