@@ -39,23 +39,23 @@ MAIN_START
 *--------------------------------------------------------------------------------------------------------------
     
 GET_INPUT    
-            MOVE        #task1,D0
+            MOVE        #01,D0
             LEA         INPUT1,A1       ; Prompt user to enter start boundary
             MOVE.W      INPUT1_len,D1         
             TRAP        #15
             ADDA        #INPUT1_len,A1  ; Adds user input after prompt
-            MOVE        #task2,D0      
+            MOVE        #02,D0      
             TRAP        #15
             JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
             
             MOVEA.L     A0,A4         
-            MOVE.B      #task1,D0
+            MOVE.B      #01,D0
             LEA         INPUT2,A1       ; Prompt user to enter end boundary
             MOVE.W      INPUT2_len,D1         
             TRAP        #15         
             ADDA.L      #INPUT2_len,A1  ; Add user input after prompt
-            MOVE.B      #task2,D0
+            MOVE.B      #02,D0
             TRAP        #15
             JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
@@ -70,12 +70,12 @@ GET_INPUT
             
             BSR         BUFFER          ; To fill buffer with current address
             
-            MOVE.B      #task1,D0
+            MOVE.B      #01,D0
             LEA         REPEAT,A1       ; Asks if user wants to enter new boundaries
             MOVE.W      REPEAT_len,D1
             TRAP        #15
             
-            MOVE.B      #task2,D0
+            MOVE.B      #02,D0
             TRAP        #15
             
             MOVE.B      (A1),D3         ; Copies user input to D3
@@ -141,7 +141,7 @@ EQU3        CMPA.L      A0,A4           ; Checks if ending address > starting ad
             BGT         CHECK_END
                
 CHECK_ERROR
-            MOVE.B      #task0,D0
+            MOVE.B      #00,D0
             LEA         ERRPARAM,A1     ; Display invalid parameter msg
             MOVE.W      PARAM_len,D1
             TRAP        #15        
@@ -241,7 +241,7 @@ endBuff     RTS
 *--------------------------------------------------------------------------------------------------------------
 
 EXIT_PROGRAM            
-            MOVE.B      #task1,D0
+            MOVE.B      #01,D0
             LEA         EXIT,A1
             MOVE.W      EXIT_len,D1
             TRAP        #15
@@ -267,14 +267,59 @@ CLEAR_REG1
             RTS
              
 CLEAR_REG2  
-            CLR.L   D0                  ; Clears each register except boolean (D5)
-            CLR.L   D1
-            CLR.L   D2
-            CLR.L   D3
-            CLR.L   D4
-            CLR.L   D6
-            CLR.L   D7
+            CLR.L       D0              ; Clears each register except boolean (D5)
+            CLR.L       D1
+            CLR.L       D2
+            CLR.L       D3
+            CLR.L       D4
+            CLR.L       D6
+            CLR.L       D7
             RTS     
+
+*--------------------------------------------------------------------------------------------------------------
+*   START OF DECODE
+*--------------------------------------------------------------------------------------------------------------
+          
+DECODE_OP   MOVEM.L     A4-A6/D0-D4/D6-D7,-(SP)      ; Registers to be saved using MOVEM
+            JSR         CLEAR_REG2                   ; Registers are cleared to be used
+            MOVE.B      #TRUE,D5                     ; Bool = TRUE
+            MOVE.W      (A0)+,D7            ; Move instructions to D7 and increment pointer
+            MOVEA.L     A2,A3               ; Stores buffer location                 
+            JSR         GET_OP              ; Decode instruction to get opcode
+
+RETURN_OP   MOVEM.L     (SP)+,D6-D7/D0-D4/A4-A6      ; Clean and restore registers
+            RTS            
+            
+                 
+GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
+            MOVE.B      #12,D4              ; Load shift register for 12 bits
+            LSR.W       D4,D6               ; Shift register 12 bits right
+            MULU        #6,D6               ; Forms offset           
+            LEA         OP_TABLE,A5         ; Access table                                                                                   
+            JSR         00(A5,D6)           ; Jump indirect with index (00 indicates word movement)
+            RTS
+
+*--------------------------------------------------------------------------------------------------------------
+*   MAIN OPCODE TABLE (first 4 bits)
+*--------------------------------------------------------------------------------------------------------------
+
+OP_TABLE      
+            ;JMP        GROUP0_0000            
+            ;JMP        GROUP1_0001            
+            ;JMP        GROUP2_0010
+            ;JMP        GROUP3_0011
+            ;JMP        GROUP4_0100
+            ;JMP        GROUP5_0101
+            ;JMP        GROUP6_0110
+            ;JMP        GROUP7_0111
+            ;JMP        GROUP8_1000
+            ;JMP        GROUP9_1001
+            ;JMP        GROUPA_1010
+            ;JMP        GROUPB_1011
+            ;JMP        GROUPC_1100
+            ;JMP        GROUPD_1101
+            ;JMP        GROUPE_1110
+            ;JMP        GROUPF_1111
 
             
 *--------------------------------------------------------------------------------------------------------------
@@ -326,9 +371,6 @@ length      EQU         0               ; Effective address length to be stored 
 TRUE        EQU         1               ; Boolean - is true
 FALSE       EQU         0               ; Boolean - is false
 lineCount   EQU         25              ; Total lines to be displayed
-task0       EQU         00              ; output command
-task1       EQU         01              ; output command
-task2       EQU         02              ; output command
 
 *-----------------------------------------------------------
 *   END OF PROGRAM
