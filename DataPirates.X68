@@ -340,36 +340,8 @@ TO_BUFFER   MOVE.B      D6,(A2)+        ; Saves to buffer
 
 
 *--------------------------------------------------------------------------------------------------------------
-*   Helper Methods
+*   FORMAT ADDRESS OUTPUT: for data to be displayed next to each corresponding address
 *--------------------------------------------------------------------------------------------------------------
-
-CLEAR_REG1
-            CLR         D0              ; Clears all data registers
-            CLR         D1
-            CLR         D2
-            CLR         D3
-            CLR         D4
-            CLR         D5
-            CLR         D6
-            CLR         D7            
-            MOVEA.L     #$0, A0         ; Clears all address registers
-            MOVEA.L     #$0, A1
-            MOVEA.L     #$0, A2
-            MOVEA.L     #$0, A3
-            MOVEA.L     #$0, A4
-            MOVEA.L     #$0, A5
-            MOVEA.L     #$0, A6            
-            RTS
-             
-CLEAR_REG2  
-            CLR.L       D0              ; Clears each register except boolean (D5)
-            CLR.L       D1
-            CLR.L       D2
-            CLR.L       D3
-            CLR.L       D4
-            CLR.L       D6
-            CLR.L       D7
-            RTS     
 
 FORMAT_ADD  JSR         SHIFT1          ; Clears D6 to load new value
             MOVE.B      #12,D4          ; Assigns D4 with 12 bits to shift
@@ -415,6 +387,39 @@ SHIFT4      LSR.L       D4,D6           ; Shifts address left x bits
             RTS
 
             
+*--------------------------------------------------------------------------------------------------------------
+*   Helper Methods
+*--------------------------------------------------------------------------------------------------------------
+
+CLEAR_REG1
+            CLR         D0              ; Clears all data registers
+            CLR         D1
+            CLR         D2
+            CLR         D3
+            CLR         D4
+            CLR         D5
+            CLR         D6
+            CLR         D7            
+            MOVEA.L     #$0, A0         ; Clears all address registers
+            MOVEA.L     #$0, A1
+            MOVEA.L     #$0, A2
+            MOVEA.L     #$0, A3
+            MOVEA.L     #$0, A4
+            MOVEA.L     #$0, A5
+            MOVEA.L     #$0, A6            
+            RTS
+             
+CLEAR_REG2  
+            CLR.L       D0              ; Clears each register except boolean (D5)
+            CLR.L       D1
+            CLR.L       D2
+            CLR.L       D3
+            CLR.L       D4
+            CLR.L       D6
+            CLR.L       D7
+            RTS     
+
+
 *--------------------------------------------------------------------------------------------------------------
 *   MESSAGES   
 *--------------------------------------------------------------------------------------------------------------
