@@ -237,7 +237,7 @@ BUFFER      MOVEA.L     A6,A2
 endBuff     RTS   
 
 *--------------------------------------------------------------------------------------------------------------
-*   Exit and Clear Methods
+*   Exit Method
 *--------------------------------------------------------------------------------------------------------------
 
 EXIT_PROGRAM            
@@ -245,7 +245,83 @@ EXIT_PROGRAM
             LEA         EXIT,A1
             MOVE.W      EXIT_len,D1
             TRAP        #15
-            RTS        
+            RTS       
+
+*--------------------------------------------------------------------------------------------------------------
+*   START OF DECODE
+*--------------------------------------------------------------------------------------------------------------
+          
+DECODE_OP   MOVEM.L     A4-A6/D0-D4/D6-D7,-(SP)      ; Registers to be saved using MOVEM
+            JSR         CLEAR_REG2                   ; Registers are cleared to be used
+            MOVE.B      #TRUE,D5                     ; Bool = TRUE
+            MOVE.W      (A0)+,D7            ; Move instructions to D7 and increment pointer
+            MOVEA.L     A2,A3               ; Stores buffer location                 
+            JSR         GET_OP              ; Decode instruction to get opcode
+
+INVALID_OP 
+            MOVE.B      #00,D5              ; Checks if bool is FALSE      
+            JMP         RETURN_OP           ; Exits subroutine
+
+RETURN_OP   MOVEM.L     (SP)+,D6-D7/D0-D4/A4-A6      ; Clean and restore registers
+            RTS                    
+                 
+GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
+            MOVE.B      #12,D4              ; Load shift register for 12 bits
+            LSR.W       D4,D6               ; Shift register 12 bits right
+            MULU        #6,D6               ; Forms offset           
+            LEA         OP_TABLE1,A5        ; Access table                                                                                   
+            JSR         00(A5,D6)           ; Jump indirect with index (00 indicates word movement)
+            RTS
+
+*--------------------------------------------------------------------------------------------------------------
+*   OPCODE TABLE (first 4 bits)
+*--------------------------------------------------------------------------------------------------------------
+
+OP_TABLE1      
+            ;JMP        GROUP1_0000           
+            ;JMP        GROUP1_0001            
+            ;JMP        GROUP1_0010         
+            ;JMP        GROUP1_0011         
+            ;JMP        GROUP1_0100         
+            ;JMP        GROUP1_0101         
+            ;JMP        GROUP1_0110         
+            ;JMP        GROUP1_0111
+            ;JMP        GROUP1_1000         
+            ;JMP        GROUP1_1001         
+            ;JMP        GROUP1_1010
+            ;JMP        GROUP1_1011         
+            ;JMP        GROUP1_1100
+            ;JMP        GROUP1_1101
+            ;JMP        GROUP1_1110
+            ;JMP        GROUP1_1111
+
+
+*--------------------------------------------------------------------------------------------------------------
+*   OPCODE TABLE (last 4 bits)
+*--------------------------------------------------------------------------------------------------------------
+
+OP_TABLE2      
+            ;JMP        GROUP2_0000            
+            ;JMP        GROUP2_0001            
+            ;JMP        GROUP2_0010
+            ;JMP        GROUP2_0011
+            ;JMP        GROUP2_0100
+            ;JMP        GROUP2_0101
+            ;JMP        GROUP2_0110
+            ;JMP        GROUP2_0111
+            ;JMP        GROUP2_1000
+            ;JMP        GROUP2_1001
+            ;JMP        GROUP2_1010
+            ;JMP        GROUP2_1011
+            ;JMP        GROUP2_1100
+            ;JMP        GROUP2_1101
+            ;JMP        GROUP2_1110
+            ;JMP        GROUP2_1111
+
+
+*--------------------------------------------------------------------------------------------------------------
+*   Helper Methods
+*--------------------------------------------------------------------------------------------------------------
 
 CLEAR_REG1
             CLR         D0              ; clears all data registers
@@ -275,51 +351,6 @@ CLEAR_REG2
             CLR.L       D6
             CLR.L       D7
             RTS     
-
-*--------------------------------------------------------------------------------------------------------------
-*   START OF DECODE
-*--------------------------------------------------------------------------------------------------------------
-          
-DECODE_OP   MOVEM.L     A4-A6/D0-D4/D6-D7,-(SP)      ; Registers to be saved using MOVEM
-            JSR         CLEAR_REG2                   ; Registers are cleared to be used
-            MOVE.B      #TRUE,D5                     ; Bool = TRUE
-            MOVE.W      (A0)+,D7            ; Move instructions to D7 and increment pointer
-            MOVEA.L     A2,A3               ; Stores buffer location                 
-            JSR         GET_OP              ; Decode instruction to get opcode
-
-RETURN_OP   MOVEM.L     (SP)+,D6-D7/D0-D4/A4-A6      ; Clean and restore registers
-            RTS            
-            
-                 
-GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
-            MOVE.B      #12,D4              ; Load shift register for 12 bits
-            LSR.W       D4,D6               ; Shift register 12 bits right
-            MULU        #6,D6               ; Forms offset           
-            LEA         OP_TABLE,A5         ; Access table                                                                                   
-            JSR         00(A5,D6)           ; Jump indirect with index (00 indicates word movement)
-            RTS
-
-*--------------------------------------------------------------------------------------------------------------
-*   MAIN OPCODE TABLE (first 4 bits)
-*--------------------------------------------------------------------------------------------------------------
-
-OP_TABLE      
-            ;JMP        GROUP0_0000            
-            ;JMP        GROUP1_0001            
-            ;JMP        GROUP2_0010
-            ;JMP        GROUP3_0011
-            ;JMP        GROUP4_0100
-            ;JMP        GROUP5_0101
-            ;JMP        GROUP6_0110
-            ;JMP        GROUP7_0111
-            ;JMP        GROUP8_1000
-            ;JMP        GROUP9_1001
-            ;JMP        GROUPA_1010
-            ;JMP        GROUPB_1011
-            ;JMP        GROUPC_1100
-            ;JMP        GROUPD_1101
-            ;JMP        GROUPE_1110
-            ;JMP        GROUPF_1111
 
             
 *--------------------------------------------------------------------------------------------------------------
@@ -360,17 +391,14 @@ main_buff   DC.B        1
 
 CR          EQU         $0D
 LF          EQU         $0A
-
+lineCount   EQU         25              ; Total lines to be displayed
 minBOUND    EQU         $00000000       ; Minimum bound
 maxBOUND    EQU         $00FFFFFF       ; Maximum bound
-
-CURRENTADDR DC.L        1               ; holds the address of instruscion
-
 stack       EQU         $A000           ; Stack Address
 length      EQU         0               ; Effective address length to be stored in D reg
 TRUE        EQU         1               ; Boolean - is true
 FALSE       EQU         0               ; Boolean - is false
-lineCount   EQU         25              ; Total lines to be displayed
+
 
 *-----------------------------------------------------------
 *   END OF PROGRAM
