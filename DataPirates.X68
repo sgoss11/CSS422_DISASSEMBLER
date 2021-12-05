@@ -9,9 +9,10 @@
 
 START       ORG        $1000            ; Start program at $1000
 
-*-----------------------------------------------------------
+*--------------------------------------------------------------------------------------------------------------
 *   START OF PROGRAM
-*-----------------------------------------------------------
+*--------------------------------------------------------------------------------------------------------------
+
             
 INTRODUCTION
             MOVE.B      #14,D0          ; Program starting message
@@ -39,23 +40,23 @@ MAIN_START
 *--------------------------------------------------------------------------------------------------------------
     
 GET_INPUT    
-            MOVE        #01,D0
+            MOVE        #01,D0          ; Display string at A1
             LEA         INPUT1,A1       ; Prompt user to enter start boundary
             MOVE.W      INPUT1_len,D1         
             TRAP        #15
             ADDA        #INPUT1_len,A1  ; Adds user input after prompt
-            MOVE        #02,D0      
+            MOVE        #02,D0          ; Read string from keyboard and store at A1      
             TRAP        #15
             JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
             
             MOVEA.L     A0,A4         
-            MOVE.B      #01,D0
+            MOVE.B      #01,D0          ; Display string at A1
             LEA         INPUT2,A1       ; Prompt user to enter end boundary
             MOVE.W      INPUT2_len,D1         
             TRAP        #15         
             ADDA.L      #INPUT2_len,A1  ; Add user input after prompt
-            MOVE.B      #02,D0
+            MOVE.B      #02,D0          ; Read string from keyboard and store at A1
             TRAP        #15
             JSR         ASCII_TO_HEX    ; Save info to stack, checks if valid
             CMP.B       #$00,D5         ; Check if boolean is false
@@ -75,7 +76,7 @@ GET_INPUT
             MOVE.W      REPEAT_len,D1
             TRAP        #15
             
-            MOVE.B      #02,D0
+            MOVE.B      #02,D0          ; Read string from keyboard and store at A1
             TRAP        #15
             
             MOVE.B      (A1),D3         ; Copies user input to D3
@@ -232,16 +233,42 @@ RETURN      MOVE.L      D4,A0               ; Moves the final address to A0
 *--------------------------------------------------------------------------------------------------------------
 
 BUFFER      MOVEA.L     A6,A2         
-            MOVEA.L     A2,A1               ; load trap address with A2            
-                       
-endBuff     RTS   
+            MOVEA.L     A2,A1               ; Loads trap address with A2            
+            JSR         FORMAT_ADD          ; Print out address lines
+            MOVE.B      #$09,(A2)+          ; Fills buffer with current address
+            JSR         DECODE_OP
+            MOVE.B      #00,(A2)            ; Null terminater
+            MOVE.B      #13,D0
+            TRAP        #15                 ; Print decoded op
+                              
+            CMPA.L      A0,A4               ; Continues to end of address range
+            BLE         endBuff
+            
+            ADDI        #1,D7               ; Increments a counter
+            CMP         #lineCount,D7       ; Checks how many lines to increment
+            BNE         BUFFER
+            
+            MOVE.B      #01,D0              ; Display string at A1
+            LEA         MORE_DATA,A1        ; Asks user to press enter for more data
+            MOVE.W      MORE_len,D1
+            TRAP        #15
+            
+            MOVE.B      #02,D0              ; Read string from keyboard and store at A1
+            TRAP        #15
+            
+            MOVE.B      #$50,(A1)
+            
+            CLR         D7                  ; Resets the counter
+            JMP         BUFFER
+            
+endBuff     RTS     
 
 *--------------------------------------------------------------------------------------------------------------
 *   Exit Method
 *--------------------------------------------------------------------------------------------------------------
 
 EXIT_PROGRAM            
-            MOVE.B      #01,D0
+            MOVE.B      #01,D0              ; Display string at A1
             LEA         EXIT,A1
             MOVE.W      EXIT_len,D1
             TRAP        #15
@@ -278,18 +305,18 @@ GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
 *--------------------------------------------------------------------------------------------------------------
 
 OP_TABLE1      
-            ;JMP        GROUP1_0000           
+            ;JMP        GROUP1_0000            
             ;JMP        GROUP1_0001            
-            ;JMP        GROUP1_0010         
-            ;JMP        GROUP1_0011         
-            ;JMP        GROUP1_0100         
-            ;JMP        GROUP1_0101         
-            ;JMP        GROUP1_0110         
+            ;JMP        GROUP1_0010
+            ;JMP        GROUP1_0011
+            ;JMP        GROUP1_0100
+            ;JMP        GROUP1_0101
+            ;JMP        GROUP1_0110
             ;JMP        GROUP1_0111
-            ;JMP        GROUP1_1000         
-            ;JMP        GROUP1_1001         
+            ;JMP        GROUP1_1000
+            ;JMP        GROUP1_1001
             ;JMP        GROUP1_1010
-            ;JMP        GROUP1_1011         
+            ;JMP        GROUP1_1011
             ;JMP        GROUP1_1100
             ;JMP        GROUP1_1101
             ;JMP        GROUP1_1110
@@ -297,26 +324,19 @@ OP_TABLE1
 
 
 *--------------------------------------------------------------------------------------------------------------
-*   OPCODE TABLE (last 4 bits)
+*   Hex to ASCII: converts hex to ascii
 *--------------------------------------------------------------------------------------------------------------
 
-OP_TABLE2      
-            ;JMP        GROUP2_0000            
-            ;JMP        GROUP2_0001            
-            ;JMP        GROUP2_0010
-            ;JMP        GROUP2_0011
-            ;JMP        GROUP2_0100
-            ;JMP        GROUP2_0101
-            ;JMP        GROUP2_0110
-            ;JMP        GROUP2_0111
-            ;JMP        GROUP2_1000
-            ;JMP        GROUP2_1001
-            ;JMP        GROUP2_1010
-            ;JMP        GROUP2_1011
-            ;JMP        GROUP2_1100
-            ;JMP        GROUP2_1101
-            ;JMP        GROUP2_1110
-            ;JMP        GROUP2_1111
+HEX_TO_ASCII
+            CMP.B       #$A,D6          ; Confirm is value is a hex character
+            BGE         LETTER          ; Checks if value is a letter or number
+            ADDI.B      #$30,D6         ; Converts value to ASCII
+            BRA         TO_BUFFER       ; Saves to buffer
+            
+LETTER      ADDI.B      #$37,D6         ; Checks if value is a letter or number
+
+TO_BUFFER   MOVE.B      D6,(A2)+        ; Saves to buffer
+            RTS
 
 
 *--------------------------------------------------------------------------------------------------------------
@@ -324,16 +344,15 @@ OP_TABLE2
 *--------------------------------------------------------------------------------------------------------------
 
 CLEAR_REG1
-            CLR         D0              ; clears all data registers
+            CLR         D0              ; Clears all data registers
             CLR         D1
             CLR         D2
             CLR         D3
             CLR         D4
             CLR         D5
             CLR         D6
-            CLR         D7
-            
-            MOVEA.L     #$0, A0
+            CLR         D7            
+            MOVEA.L     #$0, A0         ; Clears all address registers
             MOVEA.L     #$0, A1
             MOVEA.L     #$0, A2
             MOVEA.L     #$0, A3
@@ -351,6 +370,49 @@ CLEAR_REG2
             CLR.L       D6
             CLR.L       D7
             RTS     
+
+FORMAT_ADD  JSR         SHIFT1          ; Clears D6 to load new value
+            MOVE.B      #12,D4          ; Assigns D4 with 12 bits to shift
+            JSR         SHIFT2          ; Shifts 12 bits
+            MOVE.B      #08,D4          ; Assigns D4 with 8 bits to shift
+            JSR         SHIFT2          ; Shifts 8 bits
+            MOVE.B      #04,D4          ; Assigns D4 with 4 bits to shift
+            JSR         SHIFT2          ; Shifts 4 bits
+            MOVE.B      #0,D4           ; Clear D4 register
+            JSR         SHIFT4          ; Shifts no bits
+            
+            MOVE.B      #12,D4          ; Assigns D4 with 12 bits to shift
+            JSR         SHIFT4          ; Shifts 12 bits
+            MOVE.B      #08,D4          ; Assigns D4 with 8 bits to shift
+            JSR         SHIFT4          ; Shifts 8 bits
+            MOVE.B      #04,D4          ; Assigns D4 with 4 bits to shift
+            JSR         SHIFT4          ; Shifts 4 bits
+            MOVE.B      #0,D4           ; Clear D4 register
+            LSR.L       D4,D6           ; Shifts address left 0 bits
+            
+            ANDI.L      #$0000000F,D6   ; Gets last bit of address
+            JSR         HEX_TO_ASCII    ; Places value in buffer
+
+SHIFT1      MOVEQ       #$0,D6          ; Clears D6 register
+            MOVE.L      A0,D6           ; Loads current address to print in output
+            SWAP        D6              ; Swaps high and low words
+            RTS
+
+SHIFT2      LSR.L       D4,D6           ; Shifts address left x bits
+            ANDI.L      #$0000000F,D6   ; Gets last bit of address
+            JSR         HEX_TO_ASCII    ; Places value in buffer
+            JSR         SHIFT1          ; Reset address for next shift
+            RTS
+
+SHIFT3      MOVEQ       #$0,D6          ; Clears D6 address register
+            MOVE.L      A0,D6           ; Loads current address to print in output
+            RTS
+            
+SHIFT4      LSR.L       D4,D6           ; Shifts address left x bits
+            ANDI.L      #$0000000F,D6   ; Gets last bit of address
+            JSR         HEX_TO_ASCII    ; Place address value into buffer
+            JSR         SHIFT3          ; Reset address for next shift
+            RTS
 
             
 *--------------------------------------------------------------------------------------------------------------
@@ -391,10 +453,11 @@ main_buff   DC.B        1
 
 CR          EQU         $0D
 LF          EQU         $0A
-lineCount   EQU         25              ; Total lines to be displayed
+
 minBOUND    EQU         $00000000       ; Minimum bound
 maxBOUND    EQU         $00FFFFFF       ; Maximum bound
 stack       EQU         $A000           ; Stack Address
+lineCount   EQU         20              ; Total lines to be displayed
 length      EQU         0               ; Effective address length to be stored in D reg
 TRUE        EQU         1               ; Boolean - is true
 FALSE       EQU         0               ; Boolean - is false
