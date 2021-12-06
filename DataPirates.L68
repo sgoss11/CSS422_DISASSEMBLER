@@ -1,6 +1,6 @@
 00001000 Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 12/1/2021 5:21:45 PM
+Created On: 12/5/2021 7:10:52 PM
 
 00000000                             1  *--------------------------------------------------------------------------------------------------------------
 00000000                             2  * Title      : CSS422_DISASSEMBLER
@@ -11,367 +11,545 @@ Created On: 12/1/2021 5:21:45 PM
 00000000                             7  *              of valid assembly language instructions
 00000000                             8  *--------------------------------------------------------------------------------------------------------------
 00000000                             9  
-00000000                            10  
-00001000                            11  START       ORG        $1000            ; Start program at $1000
-00001000                            12  
-00001000                            13  *--------------------------------------------------------------------------------------------------------------
-00001000                            14  *   Start Program
-00001000                            15  *--------------------------------------------------------------------------------------------------------------
-00001000                            16  
+00001000                            10  START       ORG        $1000                ; Start program at $1000
+00001000                            11  
+00001000                            12  *--------------------------------------------------------------------------------------------------------------
+00001000                            13  *   START OF PROGRAM
+00001000                            14  *--------------------------------------------------------------------------------------------------------------
+00001000                            15  
+00001000                            16              
 00001000                            17  INTRODUCTION
-00001000  43F9 0000121A             18              LEA         INTRO,A1        ; Program starting message
-00001006  103C 000E                 19              MOVE.B      #14,D0
-0000100A  4E4F                      20              TRAP        #15    
+00001000  103C 000E                 18              MOVE.B      #14,D0              ; Program starting message
+00001004  43F9 00001358             19              LEA         INTRO,A1
+0000100A  4E4F                      20              TRAP        #15      
 0000100C                            21              
-0000100C                            22  MAIN_START  
-0000100C  6100 00C0                 23              BSR         CLEAR_REG       ; Clear all data registers    
-00001010  4FF9 0000A000             24              LEA         stack,SP        ; Load stack pointer  
-00001016  45F9 00001380             25              LEA         main_buff,A2    ; Load buffer in A2
-0000101C  2C4A                      26              MOVEA.L     A2,A6           ; Reference start of main buffer
-0000101E                            27  
-0000101E                            28  *--------------------------------------------------------------------------------------------------------------
-0000101E                            29  *   USER INPUT   
-0000101E                            30  *--------------------------------------------------------------------------------------------------------------
-0000101E                            31  
-0000101E                            32  GET_INPUT    
-0000101E  303C 0001                 33              MOVE        #task1,D0
-00001022  43F9 00001298             34              LEA         INPUT1,A1       ; Prompt user to enter start boundary
-00001028  3239 000012B2             35              MOVE.W      INPUT1_len,D1         
-0000102E  4E4F                      36              TRAP        #15
-00001030  D2FC 12B2                 37              ADDA        #INPUT1_len,A1  ; Adds user input after prompt
-Line 38 ERROR: Undefined symbol
-00001034  303C BD16                 38              MOVE        #task2,D0      
-00001038  4E4F                      39              TRAP        #15
-Line 40 ERROR: Undefined symbol
-0000103A  4EB9 004DBD16             40              JSR         asciiTOhex      ; Save info to stack, checks if valid
-00001040  BA3C 0000                 41              CMP.B       #$00,D5         ; Check if boolean is false
-00001044                            42              
-00001044  2848                      43              MOVEA.L     A0,A4         
-00001046  103C 0001                 44              MOVE.B      #task1,D0
-0000104A  43F9 000012B4             45              LEA         INPUT2,A1       ; Prompt user to enter end boundary
-00001050  3239 000012CC             46              MOVE.W      INPUT2_len,D1         
-00001056  4E4F                      47              TRAP        #15         
-00001058  D3FC 000012CC             48              ADDA.L      #INPUT2_len,A1  ; Add user input after prompt
-Line 49 ERROR: Undefined symbol
-0000105E  103C 0016                 49              MOVE.B      #task2,D0
-00001062  4E4F                      50              TRAP        #15
-Line 51 ERROR: Undefined symbol
-00001064  4EB9 004DBD16             51              JSR         asciiTOhex      ; Save info to stack, checks if valid
-0000106A  BA3C 0000                 52              CMP.B       #$00,D5         ; Check if boolean is false
-0000106E                            53              
-0000106E  264C                      54              MOVEA.L     A4,A3           ; Stores starting address into A3
-00001070  2848                      55              MOVEA.L     A0,A4           ; Stores endinging address into A4
-00001072  204B                      56              MOVEA.L     A3,A0           ; Stores starting address into A0 to be first 
-00001074                            57              
-00001074  6100 0092                 58              BSR         CHECK_ADDRESS   ; Check if address is valid           
-00001078  BA7C 0000                 59              CMP         #FALSE,D5       ; If not valid, Bool = False
-0000107C  67A0                      60              BEQ         GET_INPUT       ; Return to input prompts
-0000107E                            61              
-0000107E  6100 0198                 62              BSR         BUFFER          ; To fill buffer with current address
-00001082                            63              
-00001082  103C 0001                 64              MOVE.B      #task1,D0
-Line 65 ERROR: Undefined symbol
-00001086  43F9 004DBD16             65              LEA         REPEAT,A1       ; Asks if user wants to enter new boundaries
-Line 66 ERROR: Undefined symbol
-0000108C  3239 004DBD16             66              MOVE.W      REPEAT_len,D1
-00001092  4E4F                      67              TRAP        #15            
-Line 68 ERROR: Undefined symbol
-00001094  103C 0016                 68              MOVE.B      #task2,D0
-00001098  4E4F                      69              TRAP        #15
-0000109A                            70              
-0000109A  1611                      71              MOVE.B      (A1),D3         ; Copies user input to D3
-0000109C                            72              
-0000109C  12FC 0057                 73              MOVE.B      #$57,(A1)+      ; Write in "W"
-000010A0  12BC 006F                 74              MOVE.B      #$6F,(A1)       ; Write in "u"
-000010A4                            75              
-000010A4  B63C 0031                 76              CMP.B       #$31,D3         ; Compares ASCII values to D3
-000010A8  6700 FF62                 77              BEQ         MAIN_START
-000010AC                            78               
-000010AC  6700 FF5E                 79              BEQ         MAIN_START      ; Restart input prompts
-000010B0                            80              
-000010B0  6100 0008                 81              BSR         EXIT_PROGRAM    ; Exit program                  
-Line 82 ERROR: Undefined symbol
-000010B4  4EF9 004DBD16             82              JMP         END
-000010BA                            83  
-000010BA                            84  *--------------------------------------------------------------------------------------------------------------
-000010BA                            85  *   Exit and Clear Methods
-000010BA                            86  *--------------------------------------------------------------------------------------------------------------
-000010BA                            87              
-000010BA                            88  EXIT_PROGRAM            
-000010BA  103C 0001                 89              MOVE.B      #task1,D0
-000010BE  43F9 0000136E             90              LEA         EXIT,A1
-000010C4  3239 0000137E             91              MOVE.W      EXIT_len,D1
-000010CA  4E4F                      92              TRAP        #15
-000010CC  4E75                      93              RTS  
-000010CE                            94              
-000010CE                            95  CLEAR_REG
-000010CE  4240                      96              CLR D0                      ; clears all data registers
-000010D0  4241                      97              CLR D1
-000010D2  4242                      98              CLR D2                       
-000010D4  4243                      99              CLR D3
-000010D6  4244                     100              CLR D4
-000010D8  4246                     101              CLR D6
-000010DA  4247                     102              CLR D7
-000010DC                           103              
-000010DC  207C 00000000            104              MOVEA.L #$0, A0
-000010E2  227C 00000000            105              MOVEA.L #$0, A1
-000010E8  247C 00000000            106              MOVEA.L #$0, A2
-000010EE  267C 00000000            107              MOVEA.L #$0, A3
-000010F4  287C 00000000            108              MOVEA.L #$0, A4
-000010FA  2A7C 00000000            109              MOVEA.L #$0, A5
-00001100  2C7C 00000000            110              MOVEA.L #$0, A6
-00001106  4E75                     111              RTS
-00001108                           112  
-00001108                           113  *--------------------------------------------------------------------------------------------------------------
-00001108                           114  *   CHECK ADDRESS VALIDITY
-00001108                           115  *--------------------------------------------------------------------------------------------------------------
-00001108                           116  
-00001108                           117  CHECK_ADDRESS:
-00001108                           118  
-00001108                           119  CHECK_START
-00001108  BA3C 0000                120              CMP.B       #$00,D5         ; Check if boolean is false
-0000110C  6700 0054                121              BEQ         CHECK_ERROR     ; Address error
-00001110  1A3C 0001                122              MOVE.B      #TRUE,D5        ; Set boolean to true
-00001114                           123  
-00001114  2408                     124  ADD1        MOVE.L      A0,D2           ; Loads start boundary to D regs
-00001116  2602                     125              MOVE.L      D2,D3
-00001118  0203 0001                126              ANDI.B      #1,D3           ; Checks last bit in D2
-0000111C  B63C 0001                127              CMP.B       #1,D3
-00001120  6600 0260                128              BNE         minBOUND        ; Last bit = 0; go to even branch
-00001124                           129              
-00001124  5302                     130  SUB1        SUBI.B      #$1,D2          ; Allows odd address to be even
-00001126  2042                     131              MOVE.L      D2,A0    
-00001128                           132              
-00001128  240C                     133  ADD2        MOVE.L      A4,D2           ; Loads ending boundary to D regs
-0000112A  2602                     134              MOVE.L      D2,D3
-0000112C  0203 0001                135              ANDI.B      #1,D3           ; Checks last bit in D2
-00001130  B63C 0001                136              CMP.B       #1,D3
-00001134  6600 0006                137              BNE         EQU1 
-00001138                           138              
-00001138  5302                     139  SUB2        SUBI.B      #$1,D2          ; Allows odd address to be even
-0000113A  2842                     140              MOVE.L      D2,A4
-0000113C                           141                
-0000113C  B1FC 00001384            142  EQU1        CMP.L       #maxBOUND,A0      ; Checks if starting address < $00FFFFFF
-00001142  6D00 0008                143              BLT         EQU2            ; If so, branch to EQU2        
-00001146  4EF9 00001162            144              JMP         CHECK_ERROR     ; If not, address error
-0000114C                           145              
-0000114C  B9FC 00001384            146  EQU2        CMP.L       #maxBOUND,A4      ; checks if ending address <= $00FFFFFF
-00001152  6F00 0008                147              BLE         EQU3            ; If so, branch to EQU3
-00001156  4EF9 00001162            148              JMP         CHECK_ERROR     ; If not, address error               
-0000115C                           149              
-0000115C  B9C8                     150  EQU3        CMPA.L      A0,A4           ; Checks if ending address > starting address
-0000115E  6E00 0018                151              BGT         CHECK_END
-00001162                           152                 
-00001162                           153  CHECK_ERROR
-00001162  103C 0000                154              MOVE.B      #task0,D0
-Line 155 ERROR: Undefined symbol
-00001166  43F9 004DBD16            155              LEA         ERRPARAM,A1
-Line 156 ERROR: Undefined symbol
-0000116C  3239 004DBD16            156              MOVE.W      PARAM_len,D1
-00001172  4E4F                     157              TRAP        #15        
-00001174  1A3C 0000                158              MOVE.B      #FALSE,D5
-00001178                           159                          
-00001178  4E75                     160  CHECK_END   RTS
-0000117A                           161  
-0000117A                           162  
-0000117A                           163  *--------------------------------------------------------------------------------------------------------------
-0000117A                           164  *   Ascii To Hex   
-0000117A                           165  *--------------------------------------------------------------------------------------------------------------
-0000117A                           166  
-0000117A                           167  ASCII_TO_HEX
-0000117A                           168  
-0000117A  48E7 F800                169              MOVEM.L     D0-D4,-(SP)     ; saves data registers to stack
-0000117E  1A3C 0001                170              MOVE.B      #TRUE,D5        ; bool = true 
-00001182  4EB8 10CE                171              JSR         CLEAR_REG
-00001186  3C3C 0000                172              MOVE        #length,D6 
-0000118A                           173              
-0000118A                           174  CONVERT_TO_HEX
-0000118A                           175              *JSR        CLEAR_REG       ; clears the data registers before starting
-0000118A  1419                     176              MOVE.B      (A1)+, D2       ; post increment address reg and move each byte to D2
-0000118C  0C02 0030                177              CMPI.B      #$30, D2        ; if equal to 30 and greater its valid 
-00001190  6D00 002A                178              BLT         INVALID_HEX     ; if less than 30, that is error in hex number, branches if less than
-00001194  0C02 0039                179              CMPI.B      #$39, D2        ; greater than or equal to 30 and less than or equal to 39 would be numbers (0- 9) 
-00001198  6F00 003E                180              BLE         GET_NUMBER      ; branches to get number if less than or equal to 39
-0000119C  0C02 0040                181              CMPI.B      #$40, D2        ; less than or equal to 40 would be the error inp
-000011A0  6F00 001A                182              BLE         INVALID_HEX     
-000011A4  0C02 0046                183              CMPI.B      #$46, D2        ; converts to capital 
-000011A8  6F00 0038                184              BLE         GET_CAP
-000011AC  0C02 0066                185              CMPI.B      #$66, D2        ; converts lowercase letters
-000011B0  6F00 003A                186              BLE         GET_LOWERCASE
-000011B4  0C02 0066                187              CMPI.B      #$66, D2        
-000011B8  6E00 0002                188              BGT         INVALID_HEX     ; if greater than 66, input error
-000011BC                           189                            
-000011BC                           190  
-000011BC                           191              
-000011BC                           192  INVALID_HEX 
-000011BC                           193              *NEED TO BARNCH TO  RESTART THE PROGRAM/ ASK USER TO ENTER NEW VALUE
-000011BC  43F9 000012CE            194              LEA         ERRMSG, A1
-000011C2  103C 000E                195              MOVE.B      #14,D0
-000011C6  4E4F                     196              TRAP        #15
-000011C8                           197              
-000011C8  2239 00001386            198              MOVE.L      CURRENTADDR, D1
-000011CE  103C 0003                199              MOVE.B      #3, D0      *Prints in decimal
-000011D2  4E4F                     200              TRAP        #15
-000011D4                           201              
-000011D4  6000 FE48                202              BRA         GET_INPUT    *goes back to get the input 
-000011D8                           203              
-000011D8                           204              
-000011D8                           205  GET_NUMBER
-000011D8  0402 0030                206              SUBI.B      #$30, D2    *converts val of d2 to hex number val
-000011DC  D802                     207              ADD.B       D2, D4      * updates d4 with the latest hex
-000011DE  6000 0016                208              BRA         NEXT_STEP   *goes to loop
-000011E2                           209              
-000011E2                           210  GET_CAP
-000011E2  0402 0037                211              SUBI.B      #$37,D2     *converts to capital hex letter
-000011E6  D802                     212              ADD.B       D2, D4      * updates the d4 with latest hex
-000011E8  6000 000C                213              BRA         NEXT_STEP
-000011EC                           214              
-000011EC                           215              
-000011EC                           216  GET_LOWERCASE
-000011EC                           217  
-000011EC  0402 0057                218              SUBI.B      #$57, D2    *converts lowercase
-000011F0  D802                     219              ADD.B       D2, D4      * updates d4
-000011F2  6000 0002                220              BRA         NEXT_STEP
-000011F6                           221              
-000011F6                           222  NEXT_STEP
-000011F6  0C41 0000                223              CMPI.W  #0, D1          *if  the length of input in d1 is 0, then done
-Line 224 ERROR: Undefined symbol
-000011FA  6700 AB1A                224              BEQ     DONE
-000011FE  0C11 0000                225              CMPI.B  #$0, (A1)       *in case its null, done
-Line 226 ERROR: Undefined symbol
-00001202  6700 AB12                226              BEQ     DONE
-00001206                           227              *LSR    #4, D4          *shifts 4 bits to the right for new val
-00001206  E94C                     228              LSL     #4, D4          *SHIFTS 4 BITS TO THE LEFT
-00001208  5341                     229              SUBI.W  #1, D1          *cuts off the input length
-0000120A  6000 FF7E                230              BRA     CONVERT_TO_HEX  * goes back to converting to hex for new val
-0000120E                           231              
-0000120E                           232              
-0000120E                           233                     
-0000120E                           234  
-0000120E                           235  RETURN    
-0000120E  207C 00000000            236              MOVE.L  #0, A0          *basucally empties
-00001214  2044                     237              MOVE.L  D4, A0          *moves the final address to a0
-00001216  4E75                     238              RTS                     *goes back to subroutine    
-00001218                           239  
-00001218                           240  *--------------------------------------------------------------------------------------------------------------
-00001218                           241  *   BUFFER 
-00001218                           242  *--------------------------------------------------------------------------------------------------------------
-00001218                           243  
-00001218                           244  BUFFER      
-00001218                           245              
-00001218  4E75                     246  endBuff     RTS   
-0000121A                           247  
-0000121A                           248  
-0000121A                           249  *--------------------------------------------------------------------------------------------------------------
-0000121A                           250  *   MESSAGES   
-0000121A                           251  *--------------------------------------------------------------------------------------------------------------
-0000121A                           252  
-0000121A= 2D 2D 2D 2D 2D 2D ...    253  INTRO       DC.B        '------------------------------------------',CR,LF
-00001246= 0D 0A 20 20 20 20 ...    254              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
-0000126B= 2D 2D 2D 2D 2D 2D ...    255              DC.B        '------------------------------------------',CR,LF,0
-00001298                           256              
-00001298= 45 6E 74 65 72 20 ...    257  INPUT1      DC.B        'Enter starting address: $',0        ; Ask user for lower boundary
-000012B2= 001A                     258  INPUT1_len  DC.W        INPUT1_len-INPUT1                    ; Gets the length of input string
-000012B4                           259  
-000012B4= 45 6E 74 65 72 20 ...    260  INPUT2      DC.B        'Enter ending address: $',0          ; Ask user for upper boundary
-000012CC= 0018                     261  INPUT2_len  DC.W        INPUT2_len-INPUT2                    ; Gets the length of input string
-000012CE                           262  
-000012CE= 45 72 72 6F 72 21 ...    263  ERRMSG      DC.B        'Error! The input given is invalid!', 0
-000012F1= 45 72 72 6F 72 21 ...    264  ERRADD      DC.B        'Error! The address given is invalid', 0
-00001315                           265  
-00001315= 50 72 65 73 73 20 ...    266  MORE_DATA   DC.B        'Press enter for more data',0
-00001330= FFE5                     267  MORE_len    DC.W        MORE_DATA-MORE_len
-00001332                           268  
-00001332= 57 6F 75 6C 64 20 ...    269  CONTINUE    DC.B        'Would you like to continue disassembling? Y = 1, N = 0: ',0
-0000136C= 003A                     270  CONT_len    DC.W        CONT_len-CONTINUE
-0000136E                           271  
-0000136E= 45 6E 64 20 6F 66 ...    272  EXIT        DC.B        'End of program',0
-0000137E= 0010                     273  EXIT_len    DC.W        EXIT_len-EXIT  
-00001380                           274  
-00001380= 01                       275  main_buff   DC.B        1
-00001381                           276  
-00001381                           277  
-00001381                           278  *--------------------------------------------------------------------------------------------------------------
-00001381                           279  *   VARIABLES & CONSTANTS
-00001381                           280  *--------------------------------------------------------------------------------------------------------------
-00001381                           281  
-00001381  =0000000D                282  CR          EQU         $0D
-00001381  =0000000A                283  LF          EQU         $0A
-00001381                           284  
-00001382= 0000                     285  minBOUND    DC.W        $00000000       ; Minimum bound
-00001384= FFFF                     286  maxBOUND    DC.W        $0000FFFF       ; Maximum bound
-00001386                           287  
-00001386= 00000001                 288  CURRENTADDR DC.L        1               ; holds the address of instruscion
-0000138A                           289  
-0000138A  =0000A000                290  stack       EQU         $A000           ; Stack Address
-0000138A  =00000000                291  length      EQU         0               ; Effective address length to be stored in D reg
-0000138A  =00000001                292  TRUE        EQU         1               ; Boolean - is true
-0000138A  =00000000                293  FALSE       EQU         0               ; Boolean - is false
-0000138A  =00000000                294  task0       EQU         00              ; output command
-0000138A  =00000001                295  task1       EQU         01              ; output command
-0000138A                           296  
-0000138A                           297  
-0000138A                           298  
-0000138A                           299     
-0000138A                           300  
-0000138A                           301              END         START           ; last line of source
+0000100C                            22  MAIN_START      
+0000100C  6100 02FE                 23              BSR         CLEAR_REG1          ; Clear all data registers    
+00001010  4FF9 0000A000             24              LEA         stack,SP            ; Load stack pointer  
+00001016  45F9 000014E4             25              LEA         main_buff,A2        ; Load buffer in A2
+0000101C  2C4A                      26              MOVEA.L     A2,A6               ; Reference start of main buffer
+0000101E                            27              
+0000101E                            28              
+0000101E                            29  *--------------------------------------------------------------------------------------------------------------
+0000101E                            30  *   USER INPUT: User inputs upper and lower bound for dissasembler, from
+0000101E                            31  *               there it will be added to a stack and checked if address 
+0000101E                            32  *               is valid and will execute               
+0000101E                            33  *
+0000101E                            34  *   Registers used:
+0000101E                            35  *       - A0: starting address (INPUT1)
+0000101E                            36  *       - A4: ending address (INPUT2)
+0000101E                            37  *       - D2: copy of address
+0000101E                            38  *       - D3: placeholder register
+0000101E                            39  *       - D5: boolean
+0000101E                            40  *--------------------------------------------------------------------------------------------------------------
+0000101E                            41      
+0000101E                            42  GET_INPUT    
+0000101E  303C 0001                 43              MOVE        #01,D0              ; Display string at A1
+00001022  43F9 000013D6             44              LEA         INPUT1,A1           ; Prompt user to enter start boundary
+00001028  3239 000013F0             45              MOVE.W      INPUT1_len,D1         
+0000102E  4E4F                      46              TRAP        #15
+00001030  D2FC 13F0                 47              ADDA        #INPUT1_len,A1      ; Adds user input after prompt
+00001034  303C 0002                 48              MOVE        #02,D0              ; Read string from keyboard and store at A1      
+00001038  4E4F                      49              TRAP        #15
+0000103A  4EB9 0000112C             50              JSR         ASCII_TO_HEX        ; Save info to stack, checks if valid
+00001040  BA3C 0000                 51              CMP.B       #$00,D5             ; Check if boolean is false
+00001044                            52              
+00001044  2848                      53              MOVEA.L     A0,A4         
+00001046  103C 0001                 54              MOVE.B      #01,D0              ; Display string at A1
+0000104A  43F9 000013F2             55              LEA         INPUT2,A1           ; Prompt user to enter end boundary
+00001050  3239 0000140A             56              MOVE.W      INPUT2_len,D1         
+00001056  4E4F                      57              TRAP        #15         
+00001058  D3FC 0000140A             58              ADDA.L      #INPUT2_len,A1      ; Add user input after prompt
+0000105E  103C 0002                 59              MOVE.B      #02,D0              ; Read string from keyboard and store at A1
+00001062  4E4F                      60              TRAP        #15
+00001064  4EB9 0000112C             61              JSR         ASCII_TO_HEX        ; Save info to stack, checks if valid
+0000106A  BA3C 0000                 62              CMP.B       #$00,D5             ; Check if boolean is false
+0000106E                            63              
+0000106E  264C                      64              MOVEA.L     A4,A3               ; Stores starting address into A3
+00001070  2848                      65              MOVEA.L     A0,A4               ; Stores endinging address into A4
+00001072  204B                      66              MOVEA.L     A3,A0               ; Stores starting address into A0 to be swapped                   
+00001074                            67              
+00001074  6100 0044                 68              BSR         CHECK_ADDRESS       ; Check if address is valid           
+00001078  BA7C 0000                 69              CMP         #FALSE,D5           ; If not valid, Bool = False
+0000107C  67A0                      70              BEQ         GET_INPUT           ; Return to input prompts
+0000107E                            71              
+0000107E  6100 0142                 72              BSR         BUFFER              ; To fill buffer with current address
+00001082                            73              
+00001082  103C 0001                 74              MOVE.B      #01,D0
+00001086  43F9 00001496             75              LEA         REPEAT,A1           ; Asks if user wants to enter new boundaries
+0000108C  3239 000014D0             76              MOVE.W      REPEAT_len,D1
+00001092  4E4F                      77              TRAP        #15
+00001094                            78              
+00001094  103C 0002                 79              MOVE.B      #02,D0              ; Read string from keyboard and store at A1
+00001098  4E4F                      80              TRAP        #15
+0000109A                            81              
+0000109A  1611                      82              MOVE.B      (A1),D3             ; Copies user input to D3
+0000109C                            83              
+0000109C  12FC 0057                 84              MOVE.B      #$57,(A1)+          ; Write in 'W'
+000010A0  12BC 006F                 85              MOVE.B      #$6F,(A1)           ; Write in 'u'
+000010A4                            86              
+000010A4  B63C 0031                 87              CMP.B       #$31,D3             ; Compares ASCII values to D3
+000010A8  6700 FF62                 88              BEQ         MAIN_START
+000010AC                            89               
+000010AC  6700 FF5E                 90              BEQ         MAIN_START          ; Restart input prompts
+000010B0                            91              
+000010B0  6100 0160                 92              BSR         EXIT_PROGRAM        ; Exit program                  
+000010B4  4EF9 000014E6             93              JMP         END
+000010BA                            94          
+000010BA                            95          
+000010BA                            96  *--------------------------------------------------------------------------------------------------------------
+000010BA                            97  *   CHECK ADDRESS VALIDITY: Checks if address is even, is within boundaries, and if
+000010BA                            98  *                           the starting address isn't greater than the ending
+000010BA                            99  *   
+000010BA                           100  *   Registers used:
+000010BA                           101  *       - A0: starting address (INPUT1)
+000010BA                           102  *       - A4: ending address (INPUT2)
+000010BA                           103  *       - D2: copy of address
+000010BA                           104  *       - D3: placeholder register
+000010BA                           105  *       - D5: boolean
+000010BA                           106  *--------------------------------------------------------------------------------------------------------------
+000010BA                           107                 
+000010BA                           108  CHECK_ADDRESS:
+000010BA                           109  
+000010BA                           110  CHECK_START
+000010BA  BA3C 0000                111              CMP.B       #$00,D5             ; Check if boolean is false
+000010BE  6700 0054                112              BEQ         CHECK_ERROR         ; Address error
+000010C2  1A3C 0001                113              MOVE.B      #TRUE,D5            ; Set boolean to true
+000010C6                           114  
+000010C6  2408                     115  ADD1        MOVE.L      A0,D2               ; Loads start boundary to D regs
+000010C8  2602                     116              MOVE.L      D2,D3
+000010CA  0203 0001                117              ANDI.B      #1,D3               ; Checks last bit in D2
+000010CE  B63C 0001                118              CMP.B       #1,D3
+000010D2  6600 0006                119              BNE         ADD2                ; Last bit = 0; go to even branch
+000010D6                           120              
+000010D6  5302                     121  SUB1        SUBI.B      #$1,D2              ; Allows odd address to be even
+000010D8  2042                     122              MOVE.L      D2,A0    
+000010DA                           123              
+000010DA  240C                     124  ADD2        MOVE.L      A4,D2               ; Loads ending boundary to D regs
+000010DC  2602                     125              MOVE.L      D2,D3
+000010DE  0203 0001                126              ANDI.B      #1,D3               ; Checks last bit in D2
+000010E2  B63C 0001                127              CMP.B       #1,D3
+000010E6  6600 0006                128              BNE         EQU1 
+000010EA                           129              
+000010EA  5302                     130  SUB2        SUBI.B      #$1,D2              ; Allows odd address to be even
+000010EC  2842                     131              MOVE.L      D2,A4
+000010EE                           132                
+000010EE  B1FC 00FFFFFF            133  EQU1        CMP.L       #maxBOUND,A0        ; Checks if starting address < $00FFFFFF
+000010F4  6D00 0008                134              BLT         EQU2                ; If so, branch to EQU2        
+000010F8  4EF9 00001114            135              JMP         CHECK_ERROR         ; If not, address error
+000010FE                           136              
+000010FE  B9FC 00FFFFFF            137  EQU2        CMP.L       #maxBOUND,A4        ; checks if ending address <= $00FFFFFF
+00001104  6F00 0008                138              BLE         EQU3                ; If so, branch to EQU3
+00001108  4EF9 00001114            139              JMP         CHECK_ERROR         ; If not, address error               
+0000110E                           140              
+0000110E  B9C8                     141  EQU3        CMPA.L      A0,A4               ; Checks if ending address > starting address
+00001110  6E00 0018                142              BGT         CHECK_END
+00001114                           143                 
+00001114                           144  CHECK_ERROR
+00001114  103C 0000                145              MOVE.B      #00,D0
+00001118  43F9 00001453            146              LEA         ERRPARAM,A1         ; Display invalid parameter msg
+0000111E  3239 00001478            147              MOVE.W      PARAM_len,D1
+00001124  4E4F                     148              TRAP        #15        
+00001126  1A3C 0000                149              MOVE.B      #FALSE,D5           ; Bool = False
+0000112A                           150                          
+0000112A  4E75                     151  CHECK_END   RTS
+0000112C                           152  
+0000112C                           153  
+0000112C                           154  *--------------------------------------------------------------------------------------------------------------
+0000112C                           155  *   Ascii To Hex: Add data to stack, converts to hex, and checks length of address
+0000112C                           156  *   
+0000112C                           157  *   Registers used:
+0000112C                           158  *       - D3: Placeholder for current ascii byte (based off of user's input address)   
+0000112C                           159  *       - D4: Translated Address
+0000112C                           160  *       - D5: boolean
+0000112C                           161  *       - A0: At the end of the routine, store the converted address here
+0000112C                           162  *--------------------------------------------------------------------------------------------------------------
+0000112C                           163  
+0000112C                           164  ASCII_TO_HEX
+0000112C                           165  
+0000112C  48E7 F800                166              MOVEM.L     D0-D4,-(SP)         ; Saves data registers to stack
+00001130  1A3C 0001                167              MOVE.B      #TRUE,D5            ; Bool = true
+00001134  4EB9 00001348            168              JSR         CLEAR_REG2
+0000113A  3C3C 0000                169              MOVE        #length,D6      
+0000113E                           170        
+0000113E                           171  CONVERT_TO_HEX
+0000113E  1619                     172              MOVE.B      (A1)+,D3            ; Post increment address reg and move each byte to D3 (user's input)
+00001140  B63C 0030                173              CMP.B       #$30,D3             ; If ascii byte < 30 and greater, its valid
+00001144  6D00 0068                174              BLT         INVALID_HEX
+00001148  B63C 003A                175              CMP.B       #$3A,D3             ; If ascii byte < 3A, convert to num
+0000114C  6D00 0042                176              BLT         GET_NUMBER      
+00001150  B63C 0041                177              CMP.B       #$41,D3             ; If ascii byte < 41, error
+00001154  6D00 0058                178              BLT         INVALID_HEX
+00001158  B63C 0047                179              CMP.B       #$47,D3             ; If ascii byte < 47, convert to cap
+0000115C  6D00 003C                180              BLT         GET_CAPITAL
+00001160  B63C 0061                181              CMP.B       #$61,D3             ; If ascii byte < 61, error
+00001164  6D00 0048                182              BLT         INVALID_HEX
+00001168  B63C 0067                183              CMP.B       #$67,D3             ; If ascii byte < 67, convert to lowercase
+0000116C  6D00 0036                184              BLT         GET_LOWERCASE
+00001170  B63C 0066                185              CMP.B       #$66,D3             ; If ascii byte > 66, error
+00001174  6E00 0038                186              BGT         INVALID_HEX 
+00001178                           187        
+00001178                           188  NEXT_STEP    
+00001178  5246                     189              ADD         #1,D6               ; if  the length of input in d1 is 0, then done
+0000117A  BC7C 0006                190              CMP         #6,D6               ; compare to 6
+0000117E  6700 0038                191              BEQ         RETURN              ; if length is 6 digits long, jump to return              
+00001182  0C11 0000                192              CMP.B       #$00,(A1)           ; in case its null, done
+00001186  6700 0030                193              BEQ         RETURN              ; move to exit subroutine
+0000118A  E984                     194              ASL.L       #4,D4               ; shift D4 left by 4 bits for next value            
+0000118C  4EF8 113E                195              JMP         CONVERT_TO_HEX      ; goes back to converting to hex for new val
+00001190                           196  
+00001190                           197  GET_NUMBER
+00001190  0403 0030                198              SUBI.B      #$30,D3             ; converts val of d2 to hex number val
+00001194  D803                     199              ADD.B       D3,D4               ; updates d4 with the latest hex
+00001196  4EF8 1178                200              JMP         NEXT_STEP           ; goes to loop
+0000119A                           201  
+0000119A                           202  GET_CAPITAL
+0000119A  0403 0037                203              SUBI.B      #$37,D3             ; converts to capital hex letter
+0000119E  D803                     204              ADD.B       D3,D4               ; updates the D4 with latest hex
+000011A0  4EF8 1178                205              JMP         NEXT_STEP           ; goes to loop
+000011A4                           206  
+000011A4                           207  GET_LOWERCASE
+000011A4  0403 0057                208              SUBI.B      #$57,D3             ; converts lowercase hex value
+000011A8  D803                     209              ADD.B       D3,D4               ; updates D4
+000011AA  4EF8 1178                210              JMP         NEXT_STEP           ; goes to loop
+000011AE                           211  
+000011AE                           212  INVALID_HEX 
+000011AE  1A3C 0000                213              MOVE.B      #00,D5              ; Checks if bool is FALSE      
+000011B2  4EF9 000011B8            214              JMP         return              ; Exits subroutine
+000011B8                           215  
+000011B8  2044                     216  RETURN      MOVE.L      D4,A0               ; Moves the final address to A0
+000011BA  4246                     217              CLR         D6                  ; Clears counter
+000011BC  4CDF 001F                218              MOVEM.L     (SP)+,D0-D4         ; Load D registers from stack      
+000011C0  4E75                     219              RTS                             ; Return from subroutine
+000011C2                           220                 
+000011C2                           221                 
+000011C2                           222  *--------------------------------------------------------------------------------------------------------------
+000011C2                           223  *   BUFFER: gets buffer ready for current address, OpCode, and EA
+000011C2                           224  *
+000011C2                           225  *   Registers used:   
+000011C2                           226  *       - A0: Current address
+000011C2                           227  *       - A1: Trap Address
+000011C2                           228  *       - A2: Buffer Pointer
+000011C2                           229  *       - A4: Ending Address
+000011C2                           230  *       - D0: task number
+000011C2                           231  *       - D1: length of MORE_DATA
+000011C2                           232  *       - D7: counter for number of lines printed
+000011C2                           233  *--------------------------------------------------------------------------------------------------------------
+000011C2                           234  
+000011C2  244E                     235  BUFFER      MOVEA.L     A6,A2         
+000011C4  224A                     236              MOVEA.L     A2,A1               ; Loads trap address with A2            
+000011C6  4EB9 0000127E            237              JSR         FORMAT_ADD          ; Print out address lines
+000011CC  14FC 0009                238              MOVE.B      #$09,(A2)+          ; Fills buffer with current address
+000011D0  4EB9 00001226            239              JSR         DECODE_OP
+000011D6  14BC 0000                240              MOVE.B      #00,(A2)            ; Null terminater
+000011DA  103C 000D                241              MOVE.B      #13,D0
+000011DE  4E4F                     242              TRAP        #15                 ; Print decoded op
+000011E0                           243                                
+000011E0  B9C8                     244              CMPA.L      A0,A4               ; Continues to end of address range
+000011E2  6F00 002C                245              BLE         endBuff
+000011E6                           246              
+000011E6  5247                     247              ADDI        #1,D7               ; Increments a counter
+000011E8  BE7C 0014                248              CMP         #lineCount,D7       ; Checks how many lines to increment
+000011EC  66D4                     249              BNE         BUFFER
+000011EE                           250              
+000011EE  103C 0001                251              MOVE.B      #01,D0              ; Display string at A1
+000011F2  43F9 0000147A            252              LEA         MORE_DATA,A1        ; Asks user to press enter for more data
+000011F8  3239 00001494            253              MOVE.W      MORE_len,D1
+000011FE  4E4F                     254              TRAP        #15
+00001200                           255              
+00001200  103C 0002                256              MOVE.B      #02,D0              ; Read string from keyboard and store at A1
+00001204  4E4F                     257              TRAP        #15
+00001206                           258              
+00001206  12BC 0050                259              MOVE.B      #$50,(A1)
+0000120A                           260              
+0000120A  4247                     261              CLR         D7                  ; Resets the counter
+0000120C  4EF8 11C2                262              JMP         BUFFER
+00001210                           263              
+00001210  4E75                     264  endBuff     RTS     
+00001212                           265  
+00001212                           266  *--------------------------------------------------------------------------------------------------------------
+00001212                           267  *   Exit Method
+00001212                           268  *--------------------------------------------------------------------------------------------------------------
+00001212                           269  
+00001212                           270  EXIT_PROGRAM            
+00001212  103C 0001                271              MOVE.B      #01,D0              ; Display string at A1
+00001216  43F9 000014D2            272              LEA         EXIT,A1
+0000121C  3239 000014E2            273              MOVE.W      EXIT_len,D1
+00001222  4E4F                     274              TRAP        #15
+00001224  4E75                     275              RTS       
+00001226                           276  
+00001226                           277  *--------------------------------------------------------------------------------------------------------------
+00001226                           278  *   START OF DECODE
+00001226                           279  *--------------------------------------------------------------------------------------------------------------
+00001226                           280            
+00001226  48E7 FB0E                281  DECODE_OP   MOVEM.L     A4-A6/D0-D4/D6-D7,-(SP)      ; Registers to be saved using MOVEM
+0000122A  4EB9 00001348            282              JSR         CLEAR_REG2                   ; Registers are cleared to be used
+00001230  1A3C 0001                283              MOVE.B      #TRUE,D5                     ; Bool = TRUE
+00001234  3E18                     284              MOVE.W      (A0)+,D7            ; Move instructions to D7 and increment pointer
+00001236  264A                     285              MOVEA.L     A2,A3               ; Stores buffer location                 
+00001238  4EB9 0000124E            286              JSR         GET_OP              ; Decode instruction to get opcode
+0000123E                           287  
+0000123E                           288  INVALID_OP 
+0000123E  1A3C 0000                289              MOVE.B      #00,D5              ; Checks if bool is FALSE      
+00001242  4EF9 00001248            290              JMP         RETURN_OP           ; Exits subroutine
+00001248                           291  
+00001248  4CDF 70DF                292  RETURN_OP   MOVEM.L     (SP)+,D6-D7/D0-D4/A4-A6      ; Clean and restore registers
+0000124C  4E75                     293              RTS                    
+0000124E                           294                   
+0000124E  3C07                     295  GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
+00001250  183C 000C                296              MOVE.B      #12,D4              ; Load shift register for 12 bits
+00001254  E86E                     297              LSR.W       D4,D6               ; Shift register 12 bits right
+00001256  CCFC 0006                298              MULU        #6,D6               ; Forms offset           
+0000125A  4BF9 00001266            299              LEA         OP_TABLE1,A5        ; Access table                                                                                   
+00001260  4EB5 6000                300              JSR         00(A5,D6)           ; Jump indirect with index (00 indicates word movement)
+00001264  4E75                     301              RTS
+00001266                           302  
+00001266                           303  *--------------------------------------------------------------------------------------------------------------
+00001266                           304  *   OPCODE TABLE (first 4 bits)
+00001266                           305  *--------------------------------------------------------------------------------------------------------------
+00001266                           306  
+00001266                           307  OP_TABLE1      
+00001266                           308              ;JMP        GROUP1_0000            
+00001266                           309              ;JMP        GROUP1_0001            
+00001266                           310              ;JMP        GROUP1_0010
+00001266                           311              ;JMP        GROUP1_0011
+00001266                           312              ;JMP        GROUP1_0100
+00001266                           313              ;JMP        GROUP1_0101
+00001266                           314              ;JMP        GROUP1_0110
+00001266                           315              ;JMP        GROUP1_0111
+00001266                           316              ;JMP        GROUP1_1000
+00001266                           317              ;JMP        GROUP1_1001
+00001266                           318              ;JMP        GROUP1_1010
+00001266                           319              ;JMP        GROUP1_1011
+00001266                           320              ;JMP        GROUP1_1100
+00001266                           321              ;JMP        GROUP1_1101
+00001266                           322              ;JMP        GROUP1_1110
+00001266                           323              ;JMP        GROUP1_1111
+00001266                           324  
+00001266                           325  
+00001266                           326  *--------------------------------------------------------------------------------------------------------------
+00001266                           327  *   Hex to ASCII: converts hex to ascii
+00001266                           328  *--------------------------------------------------------------------------------------------------------------
+00001266                           329  
+00001266                           330  HEX_TO_ASCII
+00001266  BC3C 000A                331              CMP.B       #$A,D6              ; Confirm is value is a hex character
+0000126A  6C00 000A                332              BGE         LETTER              ; Checks if value is a letter or number
+0000126E  0606 0030                333              ADDI.B      #$30,D6             ; Converts value to ASCII
+00001272  6000 0006                334              BRA         TO_BUFFER           ; Saves to buffer
+00001276                           335              
+00001276  0606 0037                336  LETTER      ADDI.B      #$37,D6             ; Checks if value is a letter or number
+0000127A                           337  
+0000127A  14C6                     338  TO_BUFFER   MOVE.B      D6,(A2)+            ; Saves to buffer
+0000127C  4E75                     339              RTS
+0000127E                           340  
+0000127E                           341  
+0000127E                           342  *--------------------------------------------------------------------------------------------------------------
+0000127E                           343  *   FORMAT ADDRESS OUTPUT: for data to be displayed next to each corresponding address
+0000127E                           344  *--------------------------------------------------------------------------------------------------------------
+0000127E                           345  
+0000127E  4EB9 000012DA            346  FORMAT_ADD  JSR         SHIFT1              ; Clears D6 to load new value
+00001284  183C 000C                347              MOVE.B      #12,D4              ; Assigns D4 with 12 bits to shift
+00001288  4EB9 000012E2            348              JSR         SHIFT2              ; Shifts 12 bits
+0000128E  183C 0008                349              MOVE.B      #08,D4              ; Assigns D4 with 8 bits to shift
+00001292  4EB9 000012E2            350              JSR         SHIFT2              ; Shifts 8 bits
+00001298  183C 0004                351              MOVE.B      #04,D4              ; Assigns D4 with 4 bits to shift
+0000129C  4EB9 000012E2            352              JSR         SHIFT2              ; Shifts 4 bits
+000012A2  183C 0000                353              MOVE.B      #0,D4               ; Clear D4 register
+000012A6  4EB9 000012FA            354              JSR         SHIFT4              ; Shifts no bits
+000012AC                           355              
+000012AC  183C 000C                356              MOVE.B      #12,D4              ; Assigns D4 with 12 bits to shift
+000012B0  4EB9 000012FA            357              JSR         SHIFT4              ; Shifts 12 bits
+000012B6  183C 0008                358              MOVE.B      #08,D4              ; Assigns D4 with 8 bits to shift
+000012BA  4EB9 000012FA            359              JSR         SHIFT4              ; Shifts 8 bits
+000012C0  183C 0004                360              MOVE.B      #04,D4              ; Assigns D4 with 4 bits to shift
+000012C4  4EB9 000012FA            361              JSR         SHIFT4              ; Shifts 4 bits
+000012CA  183C 0000                362              MOVE.B      #0,D4               ; Clear D4 register
+000012CE  E8AE                     363              LSR.L       D4,D6               ; Shifts address left 0 bits
+000012D0                           364              
+000012D0  0286 0000000F            365              ANDI.L      #$0000000F,D6       ; Gets last bit of address
+000012D6  4EB8 1266                366              JSR         HEX_TO_ASCII        ; Places value in buffer
+000012DA                           367  
+000012DA  7C00                     368  SHIFT1      MOVEQ       #$0,D6              ; Clears D6 register
+000012DC  2C08                     369              MOVE.L      A0,D6               ; Loads current address to print in output
+000012DE  4846                     370              SWAP        D6                  ; Swaps high and low words
+000012E0  4E75                     371              RTS
+000012E2                           372  
+000012E2  E8AE                     373  SHIFT2      LSR.L       D4,D6               ; Shifts address left x bits
+000012E4  0286 0000000F            374              ANDI.L      #$0000000F,D6       ; Gets last bit of address
+000012EA  4EB8 1266                375              JSR         HEX_TO_ASCII        ; Places value in buffer
+000012EE  4EB8 12DA                376              JSR         SHIFT1              ; Reset address for next shift
+000012F2  4E75                     377              RTS
+000012F4                           378  
+000012F4  7C00                     379  SHIFT3      MOVEQ       #$0,D6              ; Clears D6 address register
+000012F6  2C08                     380              MOVE.L      A0,D6               ; Loads current address to print in output
+000012F8  4E75                     381              RTS
+000012FA                           382              
+000012FA  E8AE                     383  SHIFT4      LSR.L       D4,D6               ; Shifts address left x bits
+000012FC  0286 0000000F            384              ANDI.L      #$0000000F,D6       ; Gets last bit of address
+00001302  4EB8 1266                385              JSR         HEX_TO_ASCII        ; Place address value into buffer
+00001306  4EB8 12F4                386              JSR         SHIFT3              ; Reset address for next shift
+0000130A  4E75                     387              RTS
+0000130C                           388  
+0000130C                           389              
+0000130C                           390  *--------------------------------------------------------------------------------------------------------------
+0000130C                           391  *   Helper Methods
+0000130C                           392  *--------------------------------------------------------------------------------------------------------------
+0000130C                           393  
+0000130C                           394  CLEAR_REG1
+0000130C  4240                     395              CLR         D0                  ; Clears all data registers
+0000130E  4241                     396              CLR         D1
+00001310  4242                     397              CLR         D2
+00001312  4243                     398              CLR         D3
+00001314  4244                     399              CLR         D4
+00001316  4245                     400              CLR         D5
+00001318  4246                     401              CLR         D6
+0000131A  4247                     402              CLR         D7            
+0000131C  207C 00000000            403              MOVEA.L     #$0, A0             ; Clears all address registers
+00001322  227C 00000000            404              MOVEA.L     #$0, A1
+00001328  247C 00000000            405              MOVEA.L     #$0, A2
+0000132E  267C 00000000            406              MOVEA.L     #$0, A3
+00001334  287C 00000000            407              MOVEA.L     #$0, A4
+0000133A  2A7C 00000000            408              MOVEA.L     #$0, A5
+00001340  2C7C 00000000            409              MOVEA.L     #$0, A6            
+00001346  4E75                     410              RTS
+00001348                           411               
+00001348                           412  CLEAR_REG2  
+00001348  4280                     413              CLR.L       D0                  ; Clears each register except boolean (D5)
+0000134A  4281                     414              CLR.L       D1
+0000134C  4282                     415              CLR.L       D2
+0000134E  4283                     416              CLR.L       D3
+00001350  4284                     417              CLR.L       D4
+00001352  4286                     418              CLR.L       D6
+00001354  4287                     419              CLR.L       D7
+00001356  4E75                     420              RTS     
+00001358                           421  
+00001358                           422  
+00001358                           423  *--------------------------------------------------------------------------------------------------------------
+00001358                           424  *   MESSAGES   
+00001358                           425  *--------------------------------------------------------------------------------------------------------------
+00001358                           426  
+00001358= 2D 2D 2D 2D 2D 2D ...    427  INTRO       DC.B        '------------------------------------------',CR,LF
+00001384= 0D 0A 20 20 20 20 ...    428              DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
+000013A9= 2D 2D 2D 2D 2D 2D ...    429              DC.B        '------------------------------------------',CR,LF,0
+000013D6                           430              
+000013D6= 45 6E 74 65 72 20 ...    431  INPUT1      DC.B        'Enter starting address: $',0        ; Ask user for lower boundary
+000013F0= 001A                     432  INPUT1_len  DC.W        INPUT1_len-INPUT1                    ; Gets the length of input string
+000013F2                           433  
+000013F2= 45 6E 74 65 72 20 ...    434  INPUT2      DC.B        'Enter ending address: $',0          ; Ask user for upper boundary
+0000140A= 0018                     435  INPUT2_len  DC.W        INPUT2_len-INPUT2                    ; Gets the length of input string
+0000140C                           436  
+0000140C= 45 72 72 6F 72 21 ...    437  ERRMSG      DC.B        'Error! The input given is invalid!', 0
+0000142F= 45 72 72 6F 72 21 ...    438  ERRADD      DC.B        'Error! The address given is invalid', 0
+00001453                           439  
+00001453= 45 72 72 6F 72 3A ...    440  ERRPARAM    DC.B        'Error: input parameters are invalid.',0
+00001478= 0025                     441  PARAM_len   DC.W        PARAM_len-ERRPARAM
+0000147A                           442  
+0000147A= 50 72 65 73 73 20 ...    443  MORE_DATA   DC.B        'Press enter for more data',0
+00001494= FFE6                     444  MORE_len    DC.W        MORE_DATA-MORE_len
+00001496                           445  
+00001496= 57 6F 75 6C 64 20 ...    446  REPEAT     DC.B        'Would you like to continue disassembling? Y = 1, N = 0: ',0
+000014D0= 003A                     447  REPEAT_len  DC.W        REPEAT_len-REPEAT
+000014D2                           448  
+000014D2= 45 6E 64 20 6F 66 ...    449  EXIT        DC.B        'End of program',0
+000014E2= 0010                     450  EXIT_len    DC.W        EXIT_len-EXIT  
+000014E4                           451  
+000014E4= 01                       452  main_buff   DC.B        1
+000014E5                           453  
+000014E5                           454  
+000014E5                           455  *--------------------------------------------------------------------------------------------------------------
+000014E5                           456  *   VARIABLES & CONSTANTS
+000014E5                           457  *--------------------------------------------------------------------------------------------------------------
+000014E5                           458  
+000014E5  =0000000D                459  CR          EQU         $0D
+000014E5  =0000000A                460  LF          EQU         $0A
+000014E5                           461  
+000014E5  =00000000                462  minBOUND    EQU         $00000000           ; Minimum bound
+000014E5  =00FFFFFF                463  maxBOUND    EQU         $00FFFFFF           ; Maximum bound
+000014E5  =0000A000                464  stack       EQU         $A000               ; Stack Address
+000014E5  =00000014                465  lineCount   EQU         20                  ; Total lines to be displayed
+000014E5  =00000000                466  length      EQU         0                   ; Effective address length to be stored in D reg
+000014E5  =00000001                467  TRUE        EQU         1                   ; Boolean - is true
+000014E5  =00000000                468  FALSE       EQU         0                   ; Boolean - is false
+000014E5                           469  
+000014E5                           470  
+000014E5                           471  *-----------------------------------------------------------
+000014E5                           472  *   END OF PROGRAM
+000014E5                           473  *-----------------------------------------------------------        
+000014E5                           474  
+000014E6  4E72 2700                475  END         STOP    #$2700
+000014EA                           476              END     start
 
-12 errors detected
+No errors detected
 No warnings generated
 
 
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
-ADD1                1114
-ADD2                1128
-ASCII_TO_HEX        117A
-BUFFER              1218
-CHECK_ADDRESS       1108
-CHECK_END           1178
-CHECK_ERROR         1162
-CHECK_START         1108
-CLEAR_REG           10CE
-CONTINUE            1332
-CONT_LEN            136C
-CONVERT_TO_HEX      118A
+ADD1                10C6
+ADD2                10DA
+ASCII_TO_HEX        112C
+BUFFER              11C2
+CHECK_ADDRESS       10BA
+CHECK_END           112A
+CHECK_ERROR         1114
+CHECK_START         10BA
+CLEAR_REG1          130C
+CLEAR_REG2          1348
+CONVERT_TO_HEX      113E
 CR                  D
-CURRENTADDR         1386
-ENDBUFF             1218
-EQU1                113C
-EQU2                114C
-EQU3                115C
-ERRADD              12F1
-ERRMSG              12CE
-EXIT                136E
-EXIT_LEN            137E
-EXIT_PROGRAM        10BA
+DECODE_OP           1226
+END                 14E6
+ENDBUFF             1210
+EQU1                10EE
+EQU2                10FE
+EQU3                110E
+ERRADD              142F
+ERRMSG              140C
+ERRPARAM            1453
+EXIT                14D2
+EXIT_LEN            14E2
+EXIT_PROGRAM        1212
 FALSE               0
-GET_CAP             11E2
+FORMAT_ADD          127E
+GET_CAPITAL         119A
 GET_INPUT           101E
-GET_LOWERCASE       11EC
-GET_NUMBER          11D8
-INPUT1              1298
-INPUT1_LEN          12B2
-INPUT2              12B4
-INPUT2_LEN          12CC
-INTRO               121A
+GET_LOWERCASE       11A4
+GET_NUMBER          1190
+GET_OP              124E
+HEX_TO_ASCII        1266
+INPUT1              13D6
+INPUT1_LEN          13F0
+INPUT2              13F2
+INPUT2_LEN          140A
+INTRO               1358
 INTRODUCTION        1000
-INVALID_HEX         11BC
+INVALID_HEX         11AE
+INVALID_OP          123E
 LENGTH              0
+LETTER              1276
 LF                  A
-MAIN_BUFF           1380
+LINECOUNT           14
+MAIN_BUFF           14E4
 MAIN_START          100C
-MAXBOUND            1384
-MINBOUND            1382
-MORE_DATA           1315
-MORE_LEN            1330
-NEXT_STEP           11F6
-RETURN              120E
+MAXBOUND            FFFFFF
+MINBOUND            0
+MORE_DATA           147A
+MORE_LEN            1494
+NEXT_STEP           1178
+OP_TABLE1           1266
+PARAM_LEN           1478
+REPEAT              1496
+REPEAT_LEN          14D0
+RETURN              11B8
+RETURN_OP           1248
+SHIFT1              12DA
+SHIFT2              12E2
+SHIFT3              12F4
+SHIFT4              12FA
 STACK               A000
 START               1000
-SUB1                1124
-SUB2                1138
-TASK0               0
-TASK1               1
+SUB1                10D6
+SUB2                10EA
+TO_BUFFER           127A
 TRUE                1
