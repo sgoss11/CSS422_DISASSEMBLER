@@ -5,7 +5,7 @@
 *              D7 = Current instruction
 *              data = working instruction
 *              temp = manipulated instruction
-*              A1 = stack used
+*              A2 = stack used
 
 
 ******* HELP *******
@@ -64,9 +64,9 @@ EA_000
             * Should I AND with #$7 (111) or #$000 (000)
             ANDI.W     #$7,temp        * AND 111 (isolating last 3 bits)
             
-            MOVE.B     #$44,(A1)+      * move letter D into storage
+            MOVE.B     #$44,(A2)+      * move letter D into storage
             ADD.B      #$30,temp       * convert to hex
-            MOVE.B     temp,(A1)+      * add the number to storage
+            MOVE.B     temp,(A2)+      * add the number to storage
             
             RTS
             
@@ -79,9 +79,9 @@ EA_001
             * Should I AND with #$7 (111) or #$000 (000)
             ANDI.W     #$7,temp        * AND 111 (isolating last 3 bits)
             
-            MOVE.B     #$41,(A1)+      * move letter A to storage
+            MOVE.B     #$41,(A2)+      * move letter A to storage
             ADD.B      #$30,temp       * convert data # to hex
-            MOVE.B     temp,(A1)+      * add number to storage
+            MOVE.B     temp,(A2)+      * add number to storage
             
             RTS            
 
@@ -94,11 +94,7 @@ EA_010
             * Should I AND with #$7 (111) or #$000 (000)
             ANDI.W     #$7,temp        * AND 111 (isolating last 3 bits)
             
-            MOVE.B     #$28,(A1)+      * move '(' to storage
-            MOVE.B     #$41,(A1)+      * move A to storage
-            ADD.B      #$30,temp       * convert data # to hex
-            MOVE.B     temp,(A1)+      * move number to storage
-            MOVE.B     #$29,(A1)+      * move ')' to storage
+            JMP        opcode_Par      * jumps to SR that does (A#)
             
             RTS
 
@@ -111,12 +107,8 @@ EA_011
             * Should I AND with #$7 (111) or #$000 (000)
             ANDI.W     #$7,temp        * AND 111 (isolating last 3 bits)
             
-            MOVE.B     #$28,(A1)+      * move '(' to storage
-            MOVE.B     #$41,(A1)+      * move A to storage
-            ADD.B      #$30,temp       * convert data # to hex
-            MOVE.B     temp,(A1)+      * move number to storage
-            MOVE.B     #$29,(A1)+      * move ')' to storage  
-            MOVE.B     #$2B,(A1)+      * move '+' to storage
+            JMP        opcode_Par      * jumps to SR that does (A#)  
+            MOVE.B     #$2B,(A2)+      * move '+' to storage
 
             RTS
    
@@ -129,12 +121,8 @@ EA_100
             * Should I AND with #$7 (111) or #$000 (000)
             ANDI.W     #$7,temp        * AND 111 (isolating last 3 bits)
             
-            MOVE.B     #$2D,(A1)+      * move '-' to storage           
-            MOVE.B     #$28,(A1)+      * move '(' to storage
-            MOVE.B     #$41,(A1)+      * move A to storage
-            ADD.B      #$30,temp       * convert data # to hex
-            MOVE.B     temp,(A1)+      * move number to storage
-            MOVE.B     #$29,(A1)+      * move ')' to storage  
+            MOVE.B     #$2D,(A2)+      * move '-' to storage           
+            JMP        opcode_Par      * jumps to SR that does (A#)
 
             RTS
 *-----------------------------------------------------------
@@ -160,12 +148,18 @@ EA_immediate
 
 
 opcode_Par
-            MOVE.B   #'(',(A1)+
-            MOVE.B      
+            MOVE.B     #$28,(A2)+      * move '(' to storage
+            MOVE.B     #$41,(A2)+      * move A to storage
+            ADD.B      #$30,temp       * convert data # to hex
+            MOVE.B     temp,(A2)+      * move number to storage
+            MOVE.B     #$29,(A2)+      * move ')' to storage    
+            
+            RTS
 
 
 *-----------------------------------------------------------
 *   END
+
 
 
 
