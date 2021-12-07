@@ -321,6 +321,7 @@ GET_OP      MOVE.W      D7,D6               ; Move instruction to shift
             JSR         00(A5,D6)           ; Jump indirect with index (00 indicates word movement)
             RTS
 
+
 *--------------------------------------------------------------------------------------------------------------
 *   MAIN OPCODE TABLE (first 4 bits)
 *--------------------------------------------------------------------------------------------------------------
@@ -366,7 +367,7 @@ GROUP1_0000
             CMP.B       #$C,D6              ; Is instruction CMPI?
             BNE         INVALID_INST        ; If not one of these instructions, return DATA                 
 
-opCMPI      MOVE.B      #'C',(A2)+          ; Put CMPI into buffer
+OP_CMPI     MOVE.B      #'C',(A2)+          ; Put CMPI into buffer
             MOVE.B      #'M',(A2)+
             MOVE.B      #'P',(A2)+
             MOVE.B      #'I',(A2)+
@@ -476,7 +477,7 @@ GROUP1_0001
             MOVE.B      #' ',(A2)+  
             JSR         GET_EA              ; Prints desitination operand
             MOVE.B      #',',(A2)+          ; Adds comma between data
-            JSR         MOVE_SWAP           ; Swap the destination and source regs for getEA
+            JSR         MOVE_SWAP           ; Swap the destination and source regs for GET_EA
             JSR         GET_EA
             
 END0001     RTS 
@@ -507,12 +508,11 @@ MOVEL       MOVE.B      #'.',(A2)+
             MOVE.B      #' ',(A2)+
             MOVE.B      #' ',(A2)+
             MOVE.B      #' ',(A2)+  
-moveLEA     JSR         GET_EA              ; Prints desitination operand
+MOVEL_EA    JSR         GET_EA              ; Prints desitination operand
             MOVE.B      #',',(A2)+          ; Adds comma between data
-            JSR         MOVE_SWAP           ; Swap the destination and source regs for getEA
+            JSR         MOVE_SWAP           ; Swap the destination and source regs for GET_EA
             JSR         GET_EA     
 END0010     RTS
- 
  
  
 *--------------------------------------------------------------------------------------------------------------
@@ -542,7 +542,7 @@ MOVEW       MOVE.B      #'.',(A2)+
             MOVE.B      #' ',(A2)+  
 MOVEWEA     JSR         GET_EA              ; Prints desitination operand
             MOVE.B      #',',(A2)+          ; Adds comma between data
-            JSR         MOVE_SWAP           ; Swap the destination and source regs for getEA
+            JSR         MOVE_SWAP           ; Swap the destination and source regs for GET_EA 
 
             JSR         GET_EA     
 END0011     RTS 
@@ -1119,7 +1119,7 @@ GROUP4_1000
             LSR.L       #04,D6              ; Shift instruction by 4 bits
             ANDI.W      #$000F,D6           ; Get last byte
             CMP.B       #$4,D6              ; Is instruction SWAP?
-            BNE         opMOVEM             ; If no, it is MOVEM
+            BNE         OP_MOVEM            ; If no, it is MOVEM
             MOVE.B      #'S',(A2)+          ; Puts SWAP into buffer
             MOVE.B      #'W',(A2)+
             MOVE.B      #'A',(A2)+
@@ -1133,7 +1133,7 @@ GROUP4_1000
 
             RTS            
 
-opMOVEM     JSR         INVALID_INST        ; Instruction  is invalid
+OP_MOVEM    JSR         INVALID_INST        ; Instruction  is invalid
             RTS   
 
 GROUP4_1001 
