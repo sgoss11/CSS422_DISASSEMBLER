@@ -354,15 +354,15 @@ GROUP1_0000
             MOVE.B      #08,D4              ; Assigns D4 with 8 bits to shift
             LSR.L       D4,D6               ; Shift D6 by 8 bits
             CMP.B       #$0,D6              ; Is instruction ORI?
-            BEQ         opORI               ; Puts ORI into buffer
+            BEQ         OP_ORI              ; Puts ORI into buffer
             CMP.B       #$2,D6              ; Is instruction ANDI?
-            BEQ         opANDI              ; Puts ANDI into buffer
+            BEQ         OP_ANDI             ; Puts ANDI into buffer
             CMP.B       #$4,D6              ; Is instruction SUBI?
-            BEQ         opSUBI              ; Puts SUBI into buffer
+            BEQ         OP_SUBI             ; Puts SUBI into buffer
             CMP.B       #$6,D6              ; Is instruction ADDI?
-            BEQ         opADDI              ; Puts ADDI into buffer
+            BEQ         OP_ADDI             ; Puts ADDI into buffer
             CMP.B       #$A,D6              ; Is instruction EORI?
-            BEQ         opEORI              ; Puts opEORI into buffer
+            BEQ         OP_EORI             ; Puts opEORI into buffer
             CMP.B       #$C,D6              ; Is instruction CMPI?
             BNE         INVALID_INST        ; If not one of these instructions, return DATA                 
 
@@ -381,7 +381,7 @@ opCMPI      MOVE.B      #'C',(A2)+          ; Put CMPI into buffer
             JSR         GET_EA              ; Prints desitination operand
             JMP         END0000             ; Jumps to end of subroute GROUP1_0000
                         
-opORI       MOVE.B      #'O',(A2)+          ; Put ORI into buffer
+OP_ORI      MOVE.B      #'O',(A2)+          ; Put ORI into buffer
             MOVE.B      #'R',(A2)+
             MOVE.B      #'I',(A2)+
             MOVE.B      #'.',(A2)+
@@ -396,7 +396,7 @@ opORI       MOVE.B      #'O',(A2)+          ; Put ORI into buffer
             JSR         GET_EA              ; Prints desitination operand
             JMP         END0000             ; Jumps to end of subroute GROUP1_0000
 
-opANDI      MOVE.B      #'A',(A2)+          ; Put ANDI into buffer
+OP_ANDI     MOVE.B      #'A',(A2)+          ; Put ANDI into buffer
             MOVE.B      #'N',(A2)+
             MOVE.B      #'D',(A2)+
             MOVE.B      #'I',(A2)+
@@ -411,7 +411,7 @@ opANDI      MOVE.B      #'A',(A2)+          ; Put ANDI into buffer
             JSR         GET_EA              ; Prints desitination operand
             JMP         END0000             ; Jumps to end of subroute GROUP1_0000
             
-opSUBI      MOVE.B      #'S',(A2)+          ; Put SUBI into buffer
+OP_SUBI     MOVE.B      #'S',(A2)+          ; Put SUBI into buffer
             MOVE.B      #'U',(A2)+
             MOVE.B      #'B',(A2)+
             MOVE.B      #'I',(A2)+
@@ -427,7 +427,7 @@ opSUBI      MOVE.B      #'S',(A2)+          ; Put SUBI into buffer
             JSR         GET_EA              ; Prints desitination operand
             JMP         END0000             ; Jumps to end of subroute GROUP1_0000
             
-opADDI      MOVE.B      #'A',(A2)+          ; Put ADDI into buffer
+OP_ADDI     MOVE.B      #'A',(A2)+          ; Put ADDI into buffer
             MOVE.B      #'D',(A2)+
             MOVE.B      #'D',(A2)+
             MOVE.B      #'I',(A2)+
@@ -442,7 +442,7 @@ opADDI      MOVE.B      #'A',(A2)+          ; Put ADDI into buffer
             JSR         GET_EA              ; Prints desitination operand
             JMP         END0000             ; Jumps to end of subroute GROUP1_0000
 
-opEORI      MOVE.B      #'E',(A2)+          ; Put EORI into buffer
+OP_EORI     MOVE.B      #'E',(A2)+          ; Put EORI into buffer
             MOVE.B      #'O',(A2)+
             MOVE.B      #'R',(A2)+
             MOVE.B      #'I',(A2)+
