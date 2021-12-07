@@ -159,10 +159,10 @@ CHECK_END   RTS
 *   Ascii To Hex: Add data to stack, converts to hex, and checks length of address
 *   
 *   Registers used:
-*       - D3: Placeholder for current ascii byte   
-*       - D4: Translated Address
-*       - D5: Boolean
-*       - A0: Stores the converted address
+*       - D3: placeholder for current ascii byte   
+*       - D4: translated address
+*       - D5: boolean
+*       - A0: stores the converted address
 *--------------------------------------------------------------------------------------------------------------
 
 ASCII_TO_HEX
@@ -226,13 +226,13 @@ RETURN      MOVE.L      D4,A0               ; Moves the final address to A0
 *   BUFFER: gets buffer ready for current address, OpCode, and EA
 *
 *   Registers used:   
-*       - A0: Current address
-*       - A1: Trap Address
-*       - A2: Buffer Pointer
-*       - A4: Ending Address
-*       - D0: Task number
-*       - D1: Length for MORE_DATA
-*       - D7: Counter for number of lines printed
+*       - A0: current address
+*       - A1: trap address
+*       - A2: buffer pointer
+*       - A4: ending address
+*       - D0: task number
+*       - D1: length for MORE_DATA
+*       - D7: counter for number of lines printed
 *--------------------------------------------------------------------------------------------------------------
 
 BUFFER      MOVEA.L     A6,A2         
@@ -288,15 +288,15 @@ EXIT_PROGRAM
 *
 *   Registers used:   
 *       - A0/A5: Memory pointer
-*       - A2: Buffer pointer
-*       - A5: Index for jump tables
-*       - A6: Holds previous buffer spot
+*       - A2: buffer pointer
+*       - A5: index for jump tables
+*       - A6: holds previous buffer spot
 *       - A7: SP
-*       - D2: Size returned from getSize
-*       - D5: Boolean
-*       - D6: Copy of D7 to shift
-*       - D7: Current Word Value
-*       - (A1, D0, D1: Trap Funtions)
+*       - D2: size returned from GET_SIZE
+*       - D5: boolean
+*       - D6: copy of D7 to shift
+*       - D7: current word value
+*       - (A1, D0, D1: trap funtions)
 *--------------------------------------------------------------------------------------------------------------
           
 DECODE_OP   MOVEM.L     A4-A6/D0-D4/D6-D7,-(SP)      ; Registers to be saved using MOVEM
