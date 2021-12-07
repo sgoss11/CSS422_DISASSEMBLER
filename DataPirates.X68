@@ -1582,8 +1582,8 @@ EA_111
 *   EA SUBROUTINES
 *--------------------------------------------------------------------------------------------------------------
 
-REG_BITS    MOVE.W  D7,D6                   ; Value in D2 becomes what is in A0
-            ANDI.W  #$07,D6
+REG_BITS    MOVE.W      D7,D6               ; Value in D2 becomes what is in A0
+            ANDI.W      #$07,D6
             RTS
             
 IM_BUFFER 
