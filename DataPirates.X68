@@ -245,7 +245,7 @@ BUFFER      MOVEA.L     A6,A2
             TRAP        #15                 ; Print decoded op
                               
             CMPA.L      A0,A4               ; Continues to end of address range
-            BLE         endBuff
+            BLE         END_BUFFER
             
             ADDI        #1,D7               ; Increments a counter
             CMP         #lineCount,D7       ; Checks how many lines to increment
@@ -264,7 +264,7 @@ BUFFER      MOVEA.L     A6,A2
             CLR         D7                  ; Resets the counter
             JMP         BUFFER
             
-endBuff     RTS     
+END_BUFFER  RTS     
 
 
 *--------------------------------------------------------------------------------------------------------------
@@ -1731,8 +1731,8 @@ LF          EQU         $0A
 minBOUND    EQU         $00000000           ; Minimum bound
 maxBOUND    EQU         $00FFFFFF           ; Maximum bound
 stack       EQU         $A000               ; Stack Address
-data        EQU         $4000               * Data Address
-lineCount   EQU         20                  ; Total lines to be displayed
+data        EQU         $4000               ; Data Address
+lineCount   EQU         25                  ; Total lines to be displayed
 length      EQU         0                   ; Effective address length to be stored in D reg
 TRUE        EQU         1                   ; Boolean - is true
 FALSE       EQU         0                   ; Boolean - is false
