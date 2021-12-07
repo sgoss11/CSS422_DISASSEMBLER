@@ -12,7 +12,7 @@
 *=================================================================I/O_ROUTINES======================================================================================
 *-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-START       ORG     $1000                   ; Start program at $1000
+START       ORG         $1000               ; Start program at $1000
 
 *--------------------------------------------------------------------------------------------------------------
 *   START OF PROGRAM
@@ -1712,7 +1712,7 @@ END_len     DC.W        ERREND-END_len
 MORE_DATA   DC.B        'Press enter for more data',0
 MORE_len    DC.W        MORE_DATA-MORE_len
 
-REPEAT      DC.B        'Would you like to continue disassembling? Y = 1, N = 0: ',0
+REPEAT      DC.B        'Would you like to continue disassembling? (Y = 1, N = 0): ',0
 REPEAT_len  DC.W        REPEAT_len-REPEAT      
 
 EXIT        DC.W        'End of program',0
