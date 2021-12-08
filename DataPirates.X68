@@ -1692,7 +1692,12 @@ RETURN_EA2  MOVE.W      D7,D6               ; Load current word for temp
             
 INTRO       DC.B        '------------------------------------------',CR,LF
             DC.B        CR,LF,'           Program Disassembler',CR,LF,CR,LF
-            DC.B        '------------------------------------------',CR,LF,0
+            DC.B        '------------------------------------------',CR,LF,CR,LF
+            DC.B        'Please enter a hexidecimal value using characters',CR,LF
+            DC.B        '[0-9] and [A-F], uppercase letters only.',CR,LF
+            DC.B        'The starting address must be greater than $1000',CR,LF
+            DC.B        'and the ending address should be greater than',CR,LF
+            DC.B        'the starting address:',CR,LF,0
         
 INPUT1      DC.B        'Enter starting address: $',0        ; Ask user for lower boundary
 INPUT1_len  DC.W        INPUT1_len-INPUT1                    ; Gets the length of input string
@@ -1744,6 +1749,7 @@ FALSE       EQU         0                   ; Boolean - is false
 
 END         STOP        #$2700
             END         start
+
 
 
 *~Font name~Courier New~

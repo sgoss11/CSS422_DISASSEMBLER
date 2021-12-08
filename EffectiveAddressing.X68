@@ -32,8 +32,8 @@ BEGIN_EA:
             CLR        D4           
             CLR        D6
             MOVE.W     D7,data         * moves the data into D2
-            ANDI.W     #00F3,data      * leaves the needed bits 
-                                       * by adding 000000
+            ANDI.W     #003F,data      * leaves the needed bits 
+                                       * by adding 0000 0000 0111 1111
             LSR.W      #3,data         * shift 3 bits
             
             MULU       #6,data         *offset by 6
@@ -159,6 +159,7 @@ opcode_Par
 
 *-----------------------------------------------------------
 *   END
+
 
 
 
