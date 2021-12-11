@@ -214,7 +214,7 @@ GET_LOWERCASE
 
 INVALID_HEX 
             MOVE.B      #00,D5              ; Checks if bool is FALSE      
-            JMP         return              ; Exits subroutine
+            JMP         RETURN              ; Exits subroutine
 
 RETURN      MOVE.L      D4,A0               ; Moves the final address to A0
             CLR         D6                  ; Clears counter
@@ -1747,7 +1747,7 @@ FALSE       EQU         0                   ; Boolean - is false
 *   END OF PROGRAM
 *--------------------------------------------------------------------------------------------------------------
 
-END         STOP        #$2700
+END         STOP        #$3000
             END         start
 
 
